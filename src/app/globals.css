@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f5f1e8;
+  --background-strong: #efe7d8;
+  --surface: #fffdf8;
+  --surface-muted: #f7f3ea;
+  --foreground: #1d2430;
+  --foreground-soft: #5c6572;
+  --line: rgba(40, 51, 68, 0.12);
+  --accent: #c7642d;
+  --accent-deep: #8e3f18;
+  --accent-soft: rgba(199, 100, 45, 0.14);
+  --success: #1f7a52;
+  --warning: #8f5a05;
+  --danger: #8f2b2b;
+  --shadow: 0 14px 40px rgba(37, 45, 57, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-manrope);
+  --font-mono: var(--font-plex-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-manrope), sans-serif;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at top left, rgba(199, 100, 45, 0.16), transparent 28%),
+    linear-gradient(180deg, #f8f4ec 0%, #f3eee4 100%);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(199, 100, 45, 0.2);
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.grid-glow {
+  position: relative;
+}
+
+.grid-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(29, 36, 48, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 36, 48, 0.04) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.section-anchor {
+  scroll-margin-top: 96px;
+}
+
+.prose-muted p {
+  color: var(--foreground-soft);
+}
+
+.text-balance {
+  text-wrap: balance;
+}

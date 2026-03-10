@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum InquiryStatus {
+  NEW
+  IN_PROGRESS
+  SITE_VISIT_SCHEDULED
+  OFFER_SENT
+  COMPLETED
+  REJECTED
+}
+
+enum ObjectType {
+  APARTMENT
+  HOUSE
+  CELLAR
+  ATTIC
+  GARAGE
+  OFFICE
+  OTHER
+}
+
+enum FillLevel {
+  LOW
+  NORMAL
+  HEAVY
+  EXTREME
+}
+
+enum FloorLevel {
+  GROUND
+  FLOOR_1
+  FLOOR_2
+  FLOOR_3
+  FLOOR_4_PLUS
+}
+
+enum WalkDistance {
+  SHORT
+  MEDIUM
+  LONG
+}
+
+enum ExtraOption {
+  DISMANTLING
+  KITCHEN_REMOVAL
+  SWEPT_CLEAN
+  EXPRESS
+  EXTRA_AREA
+  BULKY_ITEMS
+}
+
+enum TravelZoneCode {
+  A
+  B
+  C
+  D
+}
+
+enum ProblemFlag {
+  HAZARDOUS_WASTE
+  DANGEROUS_MATERIALS
+  HOARDING
+  PEST_INFESTATION
+  MOLD
+  FIRE_DAMAGE
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastLoginAt  DateTime?
+}
+
+model CompanySettings {
+  id               String   @id
+  companyName      String
+  contactEmail     String
+  contactPhone     String
+  website          String?
+  street           String
+  postalCode       String
+  city             String
+  serviceAreaNote  String
+  estimateFootnote String
+  supportHours     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model PricingProfile {
+  id                      String                    @id
+  name                    String
+  isActive                Boolean                   @default(false)
+  minimumOrderValue       Int
+  baseRatePerEffectiveSqm Int
+  minFactor               Float
+  maxFactor               Float
+  elevatorReductionFactor Float
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  objectBasePrices        ObjectBasePrice[]
+  fillLevelFactors        FillLevelFactor[]
+  floorSurcharges         FloorSurcharge[]
+  walkDistanceSurcharges  WalkDistanceSurcharge[]
+  extraOptionPrices       ExtraOptionPrice[]
+  travelZones             TravelZone[]
+  inquiries               Inquiry[]
+}
+
+model ObjectBasePrice {
+  id         String         @id @default(cuid())
+  profileId  String
+  objectType ObjectType
+  amount     Int
+  profile    PricingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, objectType])
+}
+
+model FillLevelFactor {
+  id        String         @id @default(cuid())
+  profileId String
+  fillLevel FillLevel
+  factor    Float
+  profile   PricingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, fillLevel])
+}
+
+model FloorSurcharge {
+  id         String         @id @default(cuid())
+  profileId  String
+  floorLevel FloorLevel
+  amount     Int
+  profile    PricingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, floorLevel])
+}
+
+model WalkDistanceSurcharge {
+  id           String         @id @default(cuid())
+  profileId    String
+  walkDistance WalkDistance
+  amount       Int
+  profile      PricingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, walkDistance])
+}
+
+model ExtraOptionPrice {
+  id          String         @id @default(cuid())
+  profileId   String
+  extraOption ExtraOption
+  amount      Int
+  profile     PricingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, extraOption])
+}
+
+model TravelZone {
+  id            String         @id @default(cuid())
+  profileId     String
+  zoneCode      TravelZoneCode
+  label         String
+  postalPrefixes String
+  amount        Int
+  profile       PricingProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, zoneCode])
+}
+
+model Inquiry {
+  id                   String         @id @default(cuid())
+  publicId             String         @unique
+  pricingProfileId     String
+  status               InquiryStatus  @default(NEW)
+  customerName         String
+  customerEmail        String
+  customerPhone        String
+  postalCode           String
+  desiredDate          DateTime?
+  message              String?
+  objectType           ObjectType
+  areaSqm              Int
+  roomCount            Int?
+  fillLevel            FillLevel
+  floorLevel           FloorLevel
+  hasElevator          Boolean
+  walkDistance         WalkDistance
+  travelZoneCode       TravelZoneCode
+  extraOptions         String
+  problemFlags         String
+  manualReviewRequired Boolean
+  manualReviewReasons  String
+  estimateMin          Int
+  estimateMax          Int
+  inputSnapshot        String
+  calculationSnapshot  String
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  pricingProfile       PricingProfile @relation(fields: [pricingProfileId], references: [id], onDelete: Restrict)
+}
