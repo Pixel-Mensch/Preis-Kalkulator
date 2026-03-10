@@ -1,0 +1,220 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import { StatusBadge } from "@/components/admin/status-badge";
+import { updateInquiryStatusAction } from "@/app/admin/(protected)/actions";
+import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
+import {
+  parseJsonValue,
+  type InquiryCalculationSnapshot,
+} from "@/lib/inquiries";
+import {
+  extraOptionLabels,
+  inquiryStatusLabels,
+  inquiryStatuses,
+  objectTypeLabels,
+  problemFlagLabels,
+} from "@/lib/pricing/types";
+import { prisma } from "@/lib/db";
+
+type InquiryDetailPageProps = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export default async function InquiryDetailPage({ params }: InquiryDetailPageProps) {
+  const { id } = await params;
+  const inquiry = await prisma.inquiry.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!inquiry) {
+    notFound();
+  }
+
+  const snapshot = parseJsonValue<InquiryCalculationSnapshot>(inquiry.calculationSnapshot);
+  const extraOptions = parseJsonValue<string[]>(inquiry.extraOptions);
+  const problemFlags = parseJsonValue<string[]>(inquiry.problemFlags);
+  const manualReviewReasons = parseJsonValue<Array<{ code: string; message: string }>>(
+    inquiry.manualReviewReasons,
+  );
+
+  return (
+    <div className="space-y-6">
+      <section className="panel rounded-[2rem] p-6 sm:p-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <Link href="/admin/anfragen" className="text-sm font-semibold text-[var(--accent-deep)]">
+              Zurueck zur Liste
+            </Link>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-balance">
+              {inquiry.customerName}
+            </h1>
+            <p className="mt-2 text-sm text-[var(--foreground-soft)]">
+              Vorgangsnummer {inquiry.publicId} · Eingegangen am {formatDateTime(inquiry.createdAt)}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <StatusBadge status={inquiry.status} />
+            <a
+              href={`/api/admin/inquiries/${inquiry.id}/pdf`}
+              className="inline-flex h-11 items-center justify-center rounded-full bg-[var(--accent)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)]"
+            >
+              PDF herunterladen
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-6">
+          <article className="panel rounded-[2rem] p-6">
+            <h2 className="text-xl font-semibold text-slate-950">Kontakt und Termin</h2>
+            <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Telefon</dt>
+                <dd className="mt-1 font-medium text-slate-950">{inquiry.customerPhone}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">E-Mail</dt>
+                <dd className="mt-1 font-medium text-slate-950">{inquiry.customerEmail}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">PLZ</dt>
+                <dd className="mt-1 font-medium text-slate-950">{inquiry.postalCode}</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Wunschdatum</dt>
+                <dd className="mt-1 font-medium text-slate-950">{formatDate(inquiry.desiredDate)}</dd>
+              </div>
+            </dl>
+            {inquiry.message ? (
+              <div className="mt-5 rounded-3xl bg-[var(--surface-muted)] px-5 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
+                {inquiry.message}
+              </div>
+            ) : null}
+          </article>
+
+          <article className="panel rounded-[2rem] p-6">
+            <h2 className="text-xl font-semibold text-slate-950">Objekt und Kalkulation</h2>
+            <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Objektart</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {objectTypeLabels[inquiry.objectType]}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Flaeche</dt>
+                <dd className="mt-1 font-medium text-slate-950">{inquiry.areaSqm} m2</dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Preisspanne</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Zone</dt>
+                <dd className="mt-1 font-medium text-slate-950">{snapshot.estimate.travelZoneLabel}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-6 grid gap-3 rounded-3xl bg-[var(--surface-muted)] p-5 text-sm">
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Objektbasis</span>
+                <span className="font-medium text-slate-950">
+                  {formatCurrency(snapshot.estimate.basePrice)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Effektive Flaeche</span>
+                <span className="font-medium text-slate-950">
+                  {snapshot.estimate.effectiveArea} m2
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Zwischensumme</span>
+                <span className="font-medium text-slate-950">
+                  {formatCurrency(snapshot.estimate.subtotal)}
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <article className="panel rounded-[2rem] p-6">
+            <h2 className="text-xl font-semibold text-slate-950">Extras und Hinweise</h2>
+            <div className="mt-5 grid gap-6 md:grid-cols-2">
+              <div>
+                <p className="text-sm font-semibold text-slate-950">Extras</p>
+                <ul className="mt-3 space-y-2 text-sm text-[var(--foreground-soft)]">
+                  {extraOptions.length > 0 ? (
+                    extraOptions.map((value) => (
+                      <li key={value}>- {extraOptionLabels[value as keyof typeof extraOptionLabels]}</li>
+                    ))
+                  ) : (
+                    <li>Keine Extras gewaehlt.</li>
+                  )}
+                </ul>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-950">Problemflags</p>
+                <ul className="mt-3 space-y-2 text-sm text-[var(--foreground-soft)]">
+                  {problemFlags.length > 0 ? (
+                    problemFlags.map((value) => (
+                      <li key={value}>- {problemFlagLabels[value as keyof typeof problemFlagLabels]}</li>
+                    ))
+                  ) : (
+                    <li>Keine Problemflags angegeben.</li>
+                  )}
+                </ul>
+              </div>
+            </div>
+            {manualReviewReasons.length > 0 ? (
+              <div className="mt-6 rounded-3xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
+                <p className="font-semibold">Gruende fuer manuelle Pruefung</p>
+                <ul className="mt-2 space-y-1">
+                  {manualReviewReasons.map((reason) => (
+                    <li key={reason.code}>- {reason.message}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </article>
+        </div>
+
+        <aside className="space-y-6">
+          <section className="panel rounded-[2rem] p-6">
+            <h2 className="text-xl font-semibold text-slate-950">Status aendern</h2>
+            <form action={updateInquiryStatusAction} className="mt-5 space-y-4">
+              <input type="hidden" name="inquiryId" value={inquiry.id} />
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">Status</span>
+                <select
+                  name="status"
+                  defaultValue={inquiry.status}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                >
+                  {inquiryStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {inquiryStatusLabels[status]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="submit"
+                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)]"
+              >
+                Status speichern
+              </button>
+            </form>
+          </section>
+        </aside>
+      </section>
+    </div>
+  );
+}
