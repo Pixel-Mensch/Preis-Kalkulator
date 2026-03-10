@@ -235,6 +235,7 @@ export function CalculatorWizard({
                     setErrorMessage(null);
                   }
                 }}
+                aria-current={index === stepIndex ? "step" : undefined}
                 className={`rounded-3xl border px-4 py-3 text-left transition ${
                   index === stepIndex
                     ? "border-[var(--accent)] bg-white text-slate-950"
@@ -272,6 +273,7 @@ export function CalculatorWizard({
                       key={value}
                       type="button"
                       onClick={() => setFormState((current) => ({ ...current, objectType: value }))}
+                      aria-pressed={formState.objectType === value}
                       className={`rounded-3xl border px-4 py-4 text-left transition ${
                         formState.objectType === value
                           ? "border-[var(--accent)] bg-[var(--accent-soft)]"
@@ -334,6 +336,7 @@ export function CalculatorWizard({
                       key={value}
                       type="button"
                       onClick={() => setFormState((current) => ({ ...current, fillLevel: value }))}
+                      aria-pressed={formState.fillLevel === value}
                       className={`rounded-3xl border px-4 py-4 text-left transition ${
                         formState.fillLevel === value
                           ? "border-[var(--accent)] bg-[var(--accent-soft)]"
@@ -420,6 +423,7 @@ export function CalculatorWizard({
                           extraOptions: toggleItem(current.extraOptions, value),
                         }))
                       }
+                      aria-pressed={formState.extraOptions.includes(value)}
                       className={`rounded-3xl border px-4 py-4 text-left transition ${
                         formState.extraOptions.includes(value)
                           ? "border-[var(--accent)] bg-[var(--accent-soft)]"
@@ -448,6 +452,7 @@ export function CalculatorWizard({
                           problemFlags: toggleItem(current.problemFlags, value),
                         }))
                       }
+                      aria-pressed={formState.problemFlags.includes(value)}
                       className={`rounded-3xl border px-4 py-4 text-left transition ${
                         formState.problemFlags.includes(value)
                           ? "border-amber-500 bg-amber-50"

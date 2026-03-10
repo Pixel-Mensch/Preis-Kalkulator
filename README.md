@@ -50,6 +50,8 @@ npm run build
 
 - This product generates a `Kostenschaetzung`, not a legally binding universal offer.
 - Each inquiry stores an immutable calculation snapshot so historical estimates remain reproducible after pricing changes.
+- Admin pricing and company settings are validated server-side and only affect future inquiries.
 - Photo uploads are intentionally deferred in this V1 because the cleanest version needs dedicated storage and stricter abuse controls.
 - `npm run db:migrate` applies the checked-in initial SQLite schema via SQL bootstrap so local setup stays reproducible on this environment.
+- `npm run db:seed` restores the default company data, pricing profile, and seeded admin user for local demos.
 - The root control files are intentionally local-only and ignored by Git.

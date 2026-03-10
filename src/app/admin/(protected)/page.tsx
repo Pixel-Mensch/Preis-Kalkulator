@@ -1,8 +1,10 @@
 import Link from "next/link";
 
+import { ManualReviewBadge } from "@/components/admin/manual-review-badge";
 import { StatusBadge } from "@/components/admin/status-badge";
-import { formatCurrency, formatDateTime } from "@/lib/format";
 import { prisma } from "@/lib/db";
+import { formatCurrency, formatDateTime } from "@/lib/format";
+import { objectTypeLabels } from "@/lib/pricing/types";
 
 export default async function AdminDashboardPage() {
   const [inquiryCount, manualReviewCount, recentInquiries, companySettings] =
@@ -71,7 +73,10 @@ export default async function AdminDashboardPage() {
               Die zuletzt eingegangenen Leads im Schnellueberblick.
             </p>
           </div>
-          <Link href="/admin/anfragen" className="text-sm font-semibold text-[var(--accent-deep)]">
+          <Link
+            href="/admin/anfragen"
+            className="text-sm font-semibold text-[var(--accent-deep)]"
+          >
             Alle ansehen
           </Link>
         </div>
@@ -90,10 +95,20 @@ export default async function AdminDashboardPage() {
               {recentInquiries.map((inquiry) => (
                 <tr key={inquiry.id}>
                   <td className="py-4">
-                    <Link href={`/admin/anfragen/${inquiry.id}`} className="font-semibold text-slate-950">
+                    <Link
+                      href={`/admin/anfragen/${inquiry.id}`}
+                      className="font-semibold text-slate-950"
+                    >
                       {inquiry.customerName}
                     </Link>
-                    <p className="text-xs text-[var(--foreground-soft)]">{inquiry.postalCode}</p>
+                    <p className="text-xs text-[var(--foreground-soft)]">
+                      {objectTypeLabels[inquiry.objectType]} - {inquiry.postalCode}
+                    </p>
+                    {inquiry.manualReviewRequired ? (
+                      <div className="mt-2">
+                        <ManualReviewBadge />
+                      </div>
+                    ) : null}
                   </td>
                   <td className="py-4 font-medium text-slate-950">
                     {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}

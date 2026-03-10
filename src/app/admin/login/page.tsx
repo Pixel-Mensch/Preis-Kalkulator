@@ -24,7 +24,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
     <main className="app-shell">
       <div className="mx-auto flex min-h-screen max-w-md items-center px-5 py-10 sm:px-8">
         <div className="panel w-full rounded-[2rem] p-8">
-          <p className="eyebrow text-[var(--accent-deep)]">Admin Login</p>
+          <p className="eyebrow text-[var(--accent-deep)]">Verwaltung</p>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-balance">
             Geschuetzter Bereich
           </h1>

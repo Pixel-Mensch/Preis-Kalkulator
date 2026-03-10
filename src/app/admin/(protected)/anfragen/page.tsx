@@ -1,8 +1,10 @@
 import Link from "next/link";
 
+import { ManualReviewBadge } from "@/components/admin/manual-review-badge";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { prisma } from "@/lib/db";
+import { objectTypeLabels } from "@/lib/pricing/types";
 
 export default async function InquiryListPage() {
   const inquiries = await prisma.inquiry.findMany({
@@ -43,12 +45,15 @@ export default async function InquiryListPage() {
                   </Link>
                   <p className="text-xs text-[var(--foreground-soft)]">{inquiry.customerEmail}</p>
                 </td>
-                <td className="py-4 text-slate-950">{inquiry.objectType}</td>
+                <td className="py-4 text-slate-950">{objectTypeLabels[inquiry.objectType]}</td>
                 <td className="py-4 font-medium text-slate-950">
                   {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
                 </td>
                 <td className="py-4">
-                  <StatusBadge status={inquiry.status} />
+                  <div className="flex flex-col items-start gap-2">
+                    <StatusBadge status={inquiry.status} />
+                    {inquiry.manualReviewRequired ? <ManualReviewBadge /> : null}
+                  </div>
                 </td>
                 <td className="py-4 text-[var(--foreground-soft)]">
                   {formatDateTime(inquiry.createdAt)}

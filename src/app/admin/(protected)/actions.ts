@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/db";
 import { requireAdminSession } from "@/lib/auth";
@@ -14,18 +15,13 @@ import {
   walkDistances,
   type InquiryStatus,
 } from "@/lib/pricing/types";
-import { companySettingsSchema } from "@/lib/validation";
+import {
+  companySettingsSchema,
+  parsePricingSettingsFormData,
+} from "@/lib/validation";
 
 function getStringValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
-}
-
-function getIntValue(formData: FormData, key: string) {
-  return Number.parseInt(getStringValue(formData, key), 10);
-}
-
-function getFloatValue(formData: FormData, key: string) {
-  return Number.parseFloat(getStringValue(formData, key));
 }
 
 export async function updateInquiryStatusAction(formData: FormData) {
@@ -34,8 +30,12 @@ export async function updateInquiryStatusAction(formData: FormData) {
   const inquiryId = getStringValue(formData, "inquiryId");
   const status = getStringValue(formData, "status") as InquiryStatus;
 
-  if (!inquiryId || !inquiryStatuses.includes(status)) {
-    throw new Error("Invalid inquiry status update payload.");
+  if (!inquiryId) {
+    redirect("/admin/anfragen?status=invalid");
+  }
+
+  if (!inquiryStatuses.includes(status)) {
+    redirect(`/admin/anfragen/${inquiryId}?status=invalid`);
   }
 
   await prisma.inquiry.update({
@@ -50,6 +50,7 @@ export async function updateInquiryStatusAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/anfragen");
   revalidatePath(`/admin/anfragen/${inquiryId}`);
+  redirect(`/admin/anfragen/${inquiryId}?status=updated`);
 }
 
 export async function updateCompanySettingsAction(formData: FormData) {
@@ -69,8 +70,8 @@ export async function updateCompanySettingsAction(formData: FormData) {
     supportHours: formData.get("supportHours"),
   });
 
-  if (!parsedPayload.success) {
-    throw new Error("Invalid company settings payload.");
+  if (!companySettingsId || !parsedPayload.success) {
+    redirect("/admin/firma?status=invalid");
   }
 
   await prisma.companySettings.update({
@@ -83,12 +84,20 @@ export async function updateCompanySettingsAction(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/rechner");
   revalidatePath("/admin/firma");
+  redirect("/admin/firma?status=saved");
 }
 
 export async function updatePricingSettingsAction(formData: FormData) {
   await requireAdminSession();
 
   const pricingProfileId = getStringValue(formData, "pricingProfileId");
+  const parsedPayload = parsePricingSettingsFormData(formData);
+
+  if (!pricingProfileId || !parsedPayload.success) {
+    redirect("/admin/preise?status=invalid");
+  }
+
+  const pricingSettings = parsedPayload.data;
 
   await prisma.$transaction(async (transaction) => {
     await transaction.pricingProfile.update({
@@ -96,12 +105,12 @@ export async function updatePricingSettingsAction(formData: FormData) {
         id: pricingProfileId,
       },
       data: {
-        name: getStringValue(formData, "profileName"),
-        minimumOrderValue: getIntValue(formData, "minimumOrderValue"),
-        baseRatePerEffectiveSqm: getIntValue(formData, "baseRatePerEffectiveSqm"),
-        minFactor: getFloatValue(formData, "minFactor"),
-        maxFactor: getFloatValue(formData, "maxFactor"),
-        elevatorReductionFactor: getFloatValue(formData, "elevatorReductionFactor"),
+        name: pricingSettings.profileName,
+        minimumOrderValue: pricingSettings.minimumOrderValue,
+        baseRatePerEffectiveSqm: pricingSettings.baseRatePerEffectiveSqm,
+        minFactor: pricingSettings.minFactor,
+        maxFactor: pricingSettings.maxFactor,
+        elevatorReductionFactor: pricingSettings.elevatorReductionFactor,
       },
     });
 
@@ -114,7 +123,7 @@ export async function updatePricingSettingsAction(formData: FormData) {
           },
         },
         data: {
-          amount: getIntValue(formData, `objectBasePrice.${objectType}`),
+          amount: pricingSettings.objectBasePrices[objectType],
         },
       });
     }
@@ -128,7 +137,7 @@ export async function updatePricingSettingsAction(formData: FormData) {
           },
         },
         data: {
-          factor: getFloatValue(formData, `fillLevelFactor.${fillLevel}`),
+          factor: pricingSettings.fillLevelFactors[fillLevel],
         },
       });
     }
@@ -142,7 +151,7 @@ export async function updatePricingSettingsAction(formData: FormData) {
           },
         },
         data: {
-          amount: getIntValue(formData, `floorSurcharge.${floorLevel}`),
+          amount: pricingSettings.floorSurcharges[floorLevel],
         },
       });
     }
@@ -156,7 +165,7 @@ export async function updatePricingSettingsAction(formData: FormData) {
           },
         },
         data: {
-          amount: getIntValue(formData, `walkDistance.${walkDistance}`),
+          amount: pricingSettings.walkDistanceSurcharges[walkDistance],
         },
       });
     }
@@ -170,12 +179,14 @@ export async function updatePricingSettingsAction(formData: FormData) {
           },
         },
         data: {
-          amount: getIntValue(formData, `extraOption.${extraOption}`),
+          amount: pricingSettings.extraOptionPrices[extraOption],
         },
       });
     }
 
     for (const zoneCode of travelZoneCodes) {
+      const travelZone = pricingSettings.travelZones[zoneCode];
+
       await transaction.travelZone.update({
         where: {
           profileId_zoneCode: {
@@ -184,9 +195,9 @@ export async function updatePricingSettingsAction(formData: FormData) {
           },
         },
         data: {
-          label: getStringValue(formData, `travelZone.label.${zoneCode}`),
-          postalPrefixes: getStringValue(formData, `travelZone.prefixes.${zoneCode}`),
-          amount: getIntValue(formData, `travelZone.amount.${zoneCode}`),
+          label: travelZone.label,
+          postalPrefixes: travelZone.postalPrefixes,
+          amount: travelZone.amount,
         },
       });
     }
@@ -195,4 +206,5 @@ export async function updatePricingSettingsAction(formData: FormData) {
   revalidatePath("/rechner");
   revalidatePath("/admin");
   revalidatePath("/admin/preise");
+  redirect("/admin/preise?status=saved");
 }

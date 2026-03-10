@@ -1,18 +1,43 @@
 import { updateCompanySettingsAction } from "@/app/admin/(protected)/actions";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { getCompanySettings } from "@/lib/company";
 
-export default async function CompanySettingsPage() {
+type CompanySettingsPageProps = {
+  searchParams: Promise<{
+    status?: string;
+  }>;
+};
+
+export default async function CompanySettingsPage({
+  searchParams,
+}: CompanySettingsPageProps) {
+  const resolvedSearchParams = await searchParams;
   const companySettings = await getCompanySettings();
 
   return (
     <section className="panel rounded-[2rem] p-6 sm:p-8">
       <div>
         <p className="eyebrow text-[var(--accent-deep)]">Firma</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Company Settings</h1>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Firmeneinstellungen</h1>
         <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
           Diese Angaben werden auf der Landingpage, im Rechner und im PDF verwendet.
         </p>
       </div>
+
+      {resolvedSearchParams.status === "saved" ? (
+        <div className="mt-6">
+          <AdminNotice variant="success">
+            Firmendaten gespeichert. Landingpage, Rechner und PDF nutzen jetzt die neuen Werte.
+          </AdminNotice>
+        </div>
+      ) : null}
+      {resolvedSearchParams.status === "invalid" ? (
+        <div className="mt-6">
+          <AdminNotice variant="error">
+            Einige Firmendaten sind ungueltig. Bitte die Eingaben pruefen und erneut speichern.
+          </AdminNotice>
+        </div>
+      ) : null}
 
       <form action={updateCompanySettingsAction} className="mt-8 grid gap-4 md:grid-cols-2">
         <input type="hidden" name="companySettingsId" value={companySettings.id} />

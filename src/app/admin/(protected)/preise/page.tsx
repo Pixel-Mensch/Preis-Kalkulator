@@ -1,4 +1,5 @@
 import { updatePricingSettingsAction } from "@/app/admin/(protected)/actions";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { prisma } from "@/lib/db";
 import {
   extraOptionLabels,
@@ -13,7 +14,16 @@ import {
   walkDistances,
 } from "@/lib/pricing/types";
 
-export default async function PricingSettingsPage() {
+type PricingSettingsPageProps = {
+  searchParams: Promise<{
+    status?: string;
+  }>;
+};
+
+export default async function PricingSettingsPage({
+  searchParams,
+}: PricingSettingsPageProps) {
+  const resolvedSearchParams = await searchParams;
   const pricingProfile = await prisma.pricingProfile.findFirst({
     where: {
       isActive: true,
@@ -36,12 +46,27 @@ export default async function PricingSettingsPage() {
     <section className="panel rounded-[2rem] p-6 sm:p-8">
       <div>
         <p className="eyebrow text-[var(--accent-deep)]">Preise</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Pricing Settings</h1>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Preiseinstellungen</h1>
         <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
           Alle Werte wirken nur auf kuenftige Kalkulationen. Bestehende Anfragen behalten
           ihren gespeicherten Snapshot.
         </p>
       </div>
+
+      {resolvedSearchParams.status === "saved" ? (
+        <div className="mt-6">
+          <AdminNotice variant="success">
+            Preiseinstellungen gespeichert. Neue Werte gelten ab der naechsten Anfrage.
+          </AdminNotice>
+        </div>
+      ) : null}
+      {resolvedSearchParams.status === "invalid" ? (
+        <div className="mt-6">
+          <AdminNotice variant="error">
+            Einige Eingaben sind ungueltig. Bitte die Werte pruefen und erneut speichern.
+          </AdminNotice>
+        </div>
+      ) : null}
 
       <form action={updatePricingSettingsAction} className="mt-8 space-y-8">
         <input type="hidden" name="pricingProfileId" value={pricingProfile.id} />

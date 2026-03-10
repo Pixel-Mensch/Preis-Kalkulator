@@ -20,7 +20,7 @@ export function AdminShell({ adminName, children }: AdminShellProps) {
         <aside className="panel rounded-[2rem] p-5 lg:sticky lg:top-6 lg:h-fit">
           <div className="rounded-3xl bg-[var(--surface-muted)] px-4 py-4">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-deep)]">
-              Admin
+              Verwaltung
             </p>
             <p className="mt-2 text-lg font-semibold text-slate-950">{adminName}</p>
           </div>

@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { StatusBadge } from "@/components/admin/status-badge";
 import { updateInquiryStatusAction } from "@/app/admin/(protected)/actions";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { ManualReviewBadge } from "@/components/admin/manual-review-badge";
+import { StatusBadge } from "@/components/admin/status-badge";
+import { prisma } from "@/lib/db";
 import { formatCurrency, formatDate, formatDateTime } from "@/lib/format";
 import {
   parseJsonValue,
@@ -15,16 +18,21 @@ import {
   objectTypeLabels,
   problemFlagLabels,
 } from "@/lib/pricing/types";
-import { prisma } from "@/lib/db";
 
 type InquiryDetailPageProps = {
   params: Promise<{
     id: string;
   }>;
+  searchParams: Promise<{
+    status?: string;
+  }>;
 };
 
-export default async function InquiryDetailPage({ params }: InquiryDetailPageProps) {
-  const { id } = await params;
+export default async function InquiryDetailPage({
+  params,
+  searchParams,
+}: InquiryDetailPageProps) {
+  const [{ id }, resolvedSearchParams] = await Promise.all([params, searchParams]);
   const inquiry = await prisma.inquiry.findUnique({
     where: {
       id,
@@ -47,18 +55,23 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
       <section className="panel rounded-[2rem] p-6 sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <Link href="/admin/anfragen" className="text-sm font-semibold text-[var(--accent-deep)]">
+            <Link
+              href="/admin/anfragen"
+              className="text-sm font-semibold text-[var(--accent-deep)]"
+            >
               Zurueck zur Liste
             </Link>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-balance">
               {inquiry.customerName}
             </h1>
             <p className="mt-2 text-sm text-[var(--foreground-soft)]">
-              Vorgangsnummer {inquiry.publicId} · Eingegangen am {formatDateTime(inquiry.createdAt)}
+              Vorgangsnummer {inquiry.publicId} - Eingegangen am{" "}
+              {formatDateTime(inquiry.createdAt)}
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <StatusBadge status={inquiry.status} />
+            {inquiry.manualReviewRequired ? <ManualReviewBadge /> : null}
             <a
               href={`/api/admin/inquiries/${inquiry.id}/pdf`}
               className="inline-flex h-11 items-center justify-center rounded-full bg-[var(--accent)] px-5 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)]"
@@ -68,6 +81,15 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
           </div>
         </div>
       </section>
+
+      {resolvedSearchParams.status === "updated" ? (
+        <AdminNotice variant="success">Status erfolgreich gespeichert.</AdminNotice>
+      ) : null}
+      {resolvedSearchParams.status === "invalid" ? (
+        <AdminNotice variant="error">
+          Status konnte nicht gespeichert werden. Bitte Eingaben pruefen und erneut versuchen.
+        </AdminNotice>
+      ) : null}
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
@@ -88,7 +110,9 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
               </div>
               <div>
                 <dt className="text-[var(--foreground-soft)]">Wunschdatum</dt>
-                <dd className="mt-1 font-medium text-slate-950">{formatDate(inquiry.desiredDate)}</dd>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {formatDate(inquiry.desiredDate)}
+                </dd>
               </div>
             </dl>
             {inquiry.message ? (
@@ -119,7 +143,9 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
               </div>
               <div>
                 <dt className="text-[var(--foreground-soft)]">Zone</dt>
-                <dd className="mt-1 font-medium text-slate-950">{snapshot.estimate.travelZoneLabel}</dd>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {snapshot.estimate.travelZoneLabel}
+                </dd>
               </div>
             </dl>
 
@@ -153,7 +179,9 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
                 <ul className="mt-3 space-y-2 text-sm text-[var(--foreground-soft)]">
                   {extraOptions.length > 0 ? (
                     extraOptions.map((value) => (
-                      <li key={value}>- {extraOptionLabels[value as keyof typeof extraOptionLabels]}</li>
+                      <li key={value}>
+                        - {extraOptionLabels[value as keyof typeof extraOptionLabels]}
+                      </li>
                     ))
                   ) : (
                     <li>Keine Extras gewaehlt.</li>
@@ -165,7 +193,9 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
                 <ul className="mt-3 space-y-2 text-sm text-[var(--foreground-soft)]">
                   {problemFlags.length > 0 ? (
                     problemFlags.map((value) => (
-                      <li key={value}>- {problemFlagLabels[value as keyof typeof problemFlagLabels]}</li>
+                      <li key={value}>
+                        - {problemFlagLabels[value as keyof typeof problemFlagLabels]}
+                      </li>
                     ))
                   ) : (
                     <li>Keine Problemflags angegeben.</li>
