@@ -1,0 +1,50 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vs/
+.vscode/
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Dependency / build caches
+node_modules/
+dist/
+build/
+coverage/
+.pytest_cache/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# AI / agent local artifacts
+.aider*
+.claude/
+.codex/
+.cursor/
+.openai/
+*.session.md
+*.transcript.md
+
+# Keep repository control files tracked
+!AGENTS.md
+!PROJECT_STATE.md
+!TASK_QUEUE.md
+!ARCHITECTURE.md
+!SESSION_HANDOFF.md
