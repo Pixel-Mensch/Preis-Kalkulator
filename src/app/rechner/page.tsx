@@ -13,6 +13,9 @@ export default async function CalculatorPage() {
     <SiteShell
       companyName={companySettings.companyName}
       contactPhone={companySettings.contactPhone}
+      contactEmail={companySettings.contactEmail}
+      website={companySettings.website}
+      city={companySettings.city}
       serviceAreaNote={companySettings.serviceAreaNote}
       supportHours={companySettings.supportHours}
     >
@@ -21,6 +24,9 @@ export default async function CalculatorPage() {
           pricingConfig={pricingConfig}
           companyName={companySettings.companyName}
           companyPhone={companySettings.contactPhone}
+          companyEmail={companySettings.contactEmail}
+          serviceAreaNote={companySettings.serviceAreaNote}
+          estimateFootnote={companySettings.estimateFootnote}
         />
       </main>
     </SiteShell>

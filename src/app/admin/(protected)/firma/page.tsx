@@ -39,103 +39,158 @@ export default async function CompanySettingsPage({
         </div>
       ) : null}
 
-      <form action={updateCompanySettingsAction} className="mt-8 grid gap-4 md:grid-cols-2">
-        <input type="hidden" name="companySettingsId" value={companySettings.id} />
+      <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <form action={updateCompanySettingsAction} className="grid gap-6">
+          <input type="hidden" name="companySettingsId" value={companySettings.id} />
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Firmenname</span>
-          <input
-            name="companyName"
-            defaultValue={companySettings.companyName}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Kontakt E-Mail</span>
-          <input
-            name="contactEmail"
-            type="email"
-            defaultValue={companySettings.contactEmail}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Telefon</span>
-          <input
-            name="contactPhone"
-            defaultValue={companySettings.contactPhone}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Website</span>
-          <input
-            name="website"
-            defaultValue={companySettings.website ?? ""}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Strasse</span>
-          <input
-            name="street"
-            defaultValue={companySettings.street}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">PLZ</span>
-          <input
-            name="postalCode"
-            defaultValue={companySettings.postalCode}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Ort</span>
-          <input
-            name="city"
-            defaultValue={companySettings.city}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Support-Zeiten</span>
-          <input
-            name="supportHours"
-            defaultValue={companySettings.supportHours ?? ""}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block md:col-span-2">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">Einsatzgebiet</span>
-          <input
-            name="serviceAreaNote"
-            defaultValue={companySettings.serviceAreaNote}
-            className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
-        <label className="block md:col-span-2">
-          <span className="mb-2 block text-sm font-semibold text-slate-950">
-            Fussnote fuer Einschaetzung
-          </span>
-          <textarea
-            name="estimateFootnote"
-            rows={4}
-            defaultValue={companySettings.estimateFootnote}
-            className="w-full rounded-3xl border border-[var(--line)] bg-white px-4 py-3 outline-none transition focus:border-[var(--accent)]"
-          />
-        </label>
+          <section className="rounded-[1.8rem] bg-[var(--surface-muted)] p-5">
+            <h2 className="text-lg font-semibold text-slate-950">Kontakt und Absender</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
+              Diese Angaben erscheinen in Landingpage, Rechner, PDF und im Footer.
+            </p>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">Firmenname</span>
+                <input
+                  name="companyName"
+                  defaultValue={companySettings.companyName}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">
+                  Kontakt E-Mail
+                </span>
+                <input
+                  name="contactEmail"
+                  type="email"
+                  defaultValue={companySettings.contactEmail}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">Telefon</span>
+                <input
+                  name="contactPhone"
+                  defaultValue={companySettings.contactPhone}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">Website</span>
+                <input
+                  name="website"
+                  defaultValue={companySettings.website ?? ""}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="block md:col-span-2">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">
+                  Support-Zeiten
+                </span>
+                <input
+                  name="supportHours"
+                  defaultValue={companySettings.supportHours ?? ""}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+            </div>
+          </section>
 
-        <div className="md:col-span-2 flex justify-end">
-          <button
-            type="submit"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)]"
-          >
-            Firmendaten speichern
-          </button>
-        </div>
-      </form>
+          <section className="rounded-[1.8rem] bg-[var(--surface-muted)] p-5">
+            <h2 className="text-lg font-semibold text-slate-950">Standort und Einsatzgebiet</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label className="block md:col-span-2">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">Strasse</span>
+                <input
+                  name="street"
+                  defaultValue={companySettings.street}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">PLZ</span>
+                <input
+                  name="postalCode"
+                  defaultValue={companySettings.postalCode}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">Ort</span>
+                <input
+                  name="city"
+                  defaultValue={companySettings.city}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="block md:col-span-2">
+                <span className="mb-2 block text-sm font-semibold text-slate-950">
+                  Einsatzgebiet
+                </span>
+                <input
+                  name="serviceAreaNote"
+                  defaultValue={companySettings.serviceAreaNote}
+                  className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="rounded-[1.8rem] bg-[var(--surface-muted)] p-5">
+            <h2 className="text-lg font-semibold text-slate-950">Kundenhinweis</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
+              Dieser Hinweis erscheint bei Rechner, Ergebnis und PDF. Formulierung ruhig,
+              klar und unverbindlich halten.
+            </p>
+            <label className="mt-5 block">
+              <span className="mb-2 block text-sm font-semibold text-slate-950">
+                Fussnote fuer Einschaetzung
+              </span>
+              <textarea
+                name="estimateFootnote"
+                rows={4}
+                defaultValue={companySettings.estimateFootnote}
+                className="w-full rounded-3xl border border-[var(--line)] bg-white px-4 py-3 outline-none transition focus:border-[var(--accent)]"
+              />
+            </label>
+          </section>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)]"
+            >
+              Firmendaten speichern
+            </button>
+          </div>
+        </form>
+
+        <aside className="space-y-4">
+          <section className="rounded-[1.8rem] border border-[var(--line)] bg-white p-5">
+            <h2 className="text-lg font-semibold text-slate-950">Aktuelle Vorschau</h2>
+            <div className="mt-4 space-y-3 text-sm leading-6 text-[var(--foreground-soft)]">
+              <p className="font-semibold text-slate-950">{companySettings.companyName}</p>
+              <p>{companySettings.contactPhone}</p>
+              <p>{companySettings.contactEmail}</p>
+              <p>
+                {companySettings.street}, {companySettings.postalCode}{" "}
+                {companySettings.city}
+              </p>
+              <p>{companySettings.serviceAreaNote}</p>
+            </div>
+          </section>
+
+          <section className="rounded-[1.8rem] border border-[var(--line)] bg-[var(--surface-muted)] p-5">
+            <h2 className="text-lg font-semibold text-slate-950">Branding-Hinweis</h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
+              Firmenname, Kontakt, Einsatzgebiet und Hinweistext werden zentral aus
+              diesen Einstellungen gezogen. Damit laesst sich die Installation spaeter
+              pro Betrieb schnell anpassen.
+            </p>
+          </section>
+        </aside>
+      </div>
     </section>
   );
 }

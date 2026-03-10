@@ -10,6 +10,7 @@ import {
   floorLevels,
   objectTypeLabels,
   objectTypes,
+  travelZoneCodes,
   walkDistanceLabels,
   walkDistances,
 } from "@/lib/pricing/types";
@@ -67,6 +68,25 @@ export default async function PricingSettingsPage({
           </AdminNotice>
         </div>
       ) : null}
+
+      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+        <article className="rounded-[1.8rem] border border-[var(--line)] bg-[var(--surface-muted)] p-5">
+          <h2 className="text-lg font-semibold text-slate-950">So wirkt die Kalkulation</h2>
+          <ul className="mt-4 space-y-2 text-sm leading-6 text-[var(--foreground-soft)]">
+            <li>- Objektbasispreis plus effektive Flaeche bilden den Grundwert.</li>
+            <li>- Etage, Aufzug, Laufweg, Extras und Anfahrtszone ergaenzen den Aufwand.</li>
+            <li>- Mindestauftragswert und Preisspanne werden erst zum Schluss angewendet.</li>
+          </ul>
+        </article>
+        <article className="rounded-[1.8rem] border border-[var(--line)] bg-white p-5">
+          <h2 className="text-lg font-semibold text-slate-950">Wichtig fuer Demo und Betrieb</h2>
+          <p className="mt-4 text-sm leading-6 text-[var(--foreground-soft)]">
+            Neue Werte greifen nur fuer kuenftige Anfragen. Bereits gespeicherte
+            Vorgaenge behalten ihren Kalkulations-Snapshot und bleiben dadurch
+            nachvollziehbar.
+          </p>
+        </article>
+      </div>
 
       <form action={updatePricingSettingsAction} className="mt-8 space-y-8">
         <input type="hidden" name="pricingProfileId" value={pricingProfile.id} />
@@ -254,28 +274,45 @@ export default async function PricingSettingsPage({
               </div>
 
               <div className="space-y-4">
-                {pricingProfile.travelZones.map((travelZone) => (
-                  <div key={travelZone.id} className="rounded-3xl border border-[var(--line)] bg-white p-4">
-                    <div className="grid gap-3 sm:grid-cols-[90px_1fr_120px]">
-                      <input
-                        name={`travelZone.label.${travelZone.zoneCode}`}
-                        defaultValue={travelZone.label}
-                        className="h-11 rounded-2xl border border-[var(--line)] px-3 outline-none transition focus:border-[var(--accent)]"
-                      />
-                      <input
-                        name={`travelZone.prefixes.${travelZone.zoneCode}`}
-                        defaultValue={travelZone.postalPrefixes}
-                        className="h-11 rounded-2xl border border-[var(--line)] px-3 outline-none transition focus:border-[var(--accent)]"
-                      />
-                      <input
-                        name={`travelZone.amount.${travelZone.zoneCode}`}
-                        type="number"
-                        defaultValue={travelZone.amount}
-                        className="h-11 rounded-2xl border border-[var(--line)] px-3 text-right outline-none transition focus:border-[var(--accent)]"
-                      />
+                {travelZoneCodes.map((zoneCode) => {
+                  const travelZone = pricingProfile.travelZones.find(
+                    (entry) => entry.zoneCode === zoneCode,
+                  );
+
+                  if (!travelZone) {
+                    return null;
+                  }
+
+                  return (
+                    <div
+                      key={travelZone.id}
+                      className="rounded-3xl border border-[var(--line)] bg-white p-4"
+                    >
+                      <div className="grid gap-3 sm:grid-cols-[90px_1fr_120px]">
+                        <input
+                          name={`travelZone.label.${travelZone.zoneCode}`}
+                          defaultValue={travelZone.label}
+                          className="h-11 rounded-2xl border border-[var(--line)] px-3 outline-none transition focus:border-[var(--accent)]"
+                        />
+                        <input
+                          name={`travelZone.prefixes.${travelZone.zoneCode}`}
+                          defaultValue={travelZone.postalPrefixes}
+                          className="h-11 rounded-2xl border border-[var(--line)] px-3 outline-none transition focus:border-[var(--accent)]"
+                        />
+                        <input
+                          name={`travelZone.amount.${travelZone.zoneCode}`}
+                          type="number"
+                          defaultValue={travelZone.amount}
+                          className="h-11 rounded-2xl border border-[var(--line)] px-3 text-right outline-none transition focus:border-[var(--accent)]"
+                        />
+                      </div>
+                      <p className="mt-3 text-xs leading-5 text-[var(--foreground-soft)]">
+                        Zone {travelZone.zoneCode}: Bezeichnung, PLZ-Praefixe
+                        kommagetrennt und Aufschlag in Euro.
+                      </p>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>

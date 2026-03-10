@@ -13,10 +13,13 @@ import {
 } from "@/lib/inquiries";
 import {
   extraOptionLabels,
+  fillLevelLabels,
+  floorLevelLabels,
   inquiryStatusLabels,
   inquiryStatuses,
   objectTypeLabels,
   problemFlagLabels,
+  walkDistanceLabels,
 } from "@/lib/pricing/types";
 
 type InquiryDetailPageProps = {
@@ -49,6 +52,10 @@ export default async function InquiryDetailPage({
   const manualReviewReasons = parseJsonValue<Array<{ code: string; message: string }>>(
     inquiry.manualReviewReasons,
   );
+  const extraTotal = snapshot.estimate.extraSurcharges.reduce(
+    (sum, surcharge) => sum + surcharge.amount,
+    0,
+  );
 
   return (
     <div className="space-y-6">
@@ -67,6 +74,10 @@ export default async function InquiryDetailPage({
             <p className="mt-2 text-sm text-[var(--foreground-soft)]">
               Vorgangsnummer {inquiry.publicId} - Eingegangen am{" "}
               {formatDateTime(inquiry.createdAt)}
+            </p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--foreground-soft)]">
+              Strukturierte Anfrage mit gespeichertem Kalkulations-Snapshot. Spaetere
+              Preisupdates veraendern diesen Vorgang nicht rueckwirkend.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -115,16 +126,46 @@ export default async function InquiryDetailPage({
                 </dd>
               </div>
             </dl>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <a
+                href={`tel:${inquiry.customerPhone}`}
+                className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-white"
+              >
+                Kunde anrufen
+              </a>
+              <a
+                href={`mailto:${inquiry.customerEmail}`}
+                className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-white"
+              >
+                E-Mail schreiben
+              </a>
+            </div>
             {inquiry.message ? (
               <div className="mt-5 rounded-3xl bg-[var(--surface-muted)] px-5 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
-                {inquiry.message}
+                <p className="font-semibold text-slate-950">Hinweis des Kunden</p>
+                <p className="mt-2">{inquiry.message}</p>
               </div>
             ) : null}
           </article>
 
           <article className="panel rounded-[2rem] p-6">
-            <h2 className="text-xl font-semibold text-slate-950">Objekt und Kalkulation</h2>
-            <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-950">Objekt und Aufwand</h2>
+                <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
+                  Zusammenfassung der Anfrage mit allen Angaben, die in die
+                  Kostenschaetzung eingeflossen sind.
+                </p>
+              </div>
+              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 text-sm">
+                <p className="text-[var(--foreground-soft)]">Kostenschaetzung</p>
+                <p className="mt-1 text-lg font-semibold text-slate-950">
+                  {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
+                </p>
+              </div>
+            </div>
+
+            <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <dt className="text-[var(--foreground-soft)]">Objektart</dt>
                 <dd className="mt-1 font-medium text-slate-950">
@@ -136,18 +177,57 @@ export default async function InquiryDetailPage({
                 <dd className="mt-1 font-medium text-slate-950">{inquiry.areaSqm} m2</dd>
               </div>
               <div>
-                <dt className="text-[var(--foreground-soft)]">Preisspanne</dt>
+                <dt className="text-[var(--foreground-soft)]">Zimmer</dt>
                 <dd className="mt-1 font-medium text-slate-950">
-                  {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
+                  {inquiry.roomCount ?? "Nicht angegeben"}
                 </dd>
               </div>
               <div>
-                <dt className="text-[var(--foreground-soft)]">Zone</dt>
+                <dt className="text-[var(--foreground-soft)]">Fuellgrad</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {fillLevelLabels[inquiry.fillLevel]}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Etage / Aufzug</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {floorLevelLabels[inquiry.floorLevel]} /{" "}
+                  {inquiry.hasElevator ? "Aufzug vorhanden" : "kein Aufzug"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Laufweg</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {walkDistanceLabels[inquiry.walkDistance]}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Anfahrtszone</dt>
                 <dd className="mt-1 font-medium text-slate-950">
                   {snapshot.estimate.travelZoneLabel}
                 </dd>
               </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Preisprofil</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {snapshot.pricingConfig.profileName}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Snapshot erstellt</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {formatDateTime(snapshot.createdAt)}
+                </dd>
+              </div>
             </dl>
+          </article>
+
+          <article className="panel rounded-[2rem] p-6">
+            <h2 className="text-xl font-semibold text-slate-950">Kostenaufschluesselung</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
+              Diese Aufteilung stammt aus dem gespeicherten Kalkulations-Snapshot und
+              bleibt fuer diesen Vorgang unveraendert.
+            </p>
 
             <div className="mt-6 grid gap-3 rounded-3xl bg-[var(--surface-muted)] p-5 text-sm">
               <div className="flex items-center justify-between gap-4">
@@ -163,8 +243,57 @@ export default async function InquiryDetailPage({
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-[var(--foreground-soft)]">Zwischensumme</span>
+                <span className="text-[var(--foreground-soft)]">Kosten effektive Flaeche</span>
                 <span className="font-medium text-slate-950">
+                  {formatCurrency(snapshot.estimate.effectiveAreaCost)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Etagenaufschlag</span>
+                <span className="font-medium text-slate-950">
+                  {formatCurrency(snapshot.estimate.floorSurcharge)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Laufweg</span>
+                <span className="font-medium text-slate-950">
+                  {formatCurrency(snapshot.estimate.walkDistanceSurcharge)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Anfahrtszone</span>
+                <span className="font-medium text-slate-950">
+                  {formatCurrency(snapshot.estimate.travelZoneSurcharge)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Extras gesamt</span>
+                <span className="font-medium text-slate-950">{formatCurrency(extraTotal)}</span>
+              </div>
+              {snapshot.estimate.extraSurcharges.map((extra) => (
+                <div key={extra.code} className="flex items-center justify-between gap-4">
+                  <span className="pl-3 text-[var(--foreground-soft)]">
+                    {extra.label}
+                  </span>
+                  <span className="font-medium text-slate-950">
+                    {formatCurrency(extra.amount)}
+                  </span>
+                </div>
+              ))}
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[var(--foreground-soft)]">Zwischensumme vor Mindestwert</span>
+                <span className="font-medium text-slate-950">
+                  {formatCurrency(snapshot.estimate.subtotalBeforeMinimum)}
+                </span>
+              </div>
+              {snapshot.estimate.minimumOrderApplied ? (
+                <div className="rounded-3xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                  Der Mindestauftragswert wurde auf diese Anfrage angewendet.
+                </div>
+              ) : null}
+              <div className="flex items-center justify-between gap-4 border-t border-[var(--line)] pt-3">
+                <span className="font-semibold text-slate-950">Kalkulationswert</span>
+                <span className="font-semibold text-slate-950">
                   {formatCurrency(snapshot.estimate.subtotal)}
                 </span>
               </div>
@@ -242,6 +371,20 @@ export default async function InquiryDetailPage({
                 Status speichern
               </button>
             </form>
+          </section>
+
+          <section className="panel rounded-[2rem] p-6">
+            <h2 className="text-xl font-semibold text-slate-950">Demo- und PDF-Hinweis</h2>
+            <div className="mt-4 space-y-3 text-sm leading-6 text-[var(--foreground-soft)]">
+              <p>
+                Das PDF zieht dieselben Kontakt- und Kalkulationsdaten wie diese
+                Detailansicht.
+              </p>
+              <p>
+                Ideal fuer Vorfuehrungen: Preisprofil anpassen, neue Anfrage anlegen und
+                diesen Snapshot mit dem naechsten Vorgang vergleichen.
+              </p>
+            </div>
           </section>
         </aside>
       </section>

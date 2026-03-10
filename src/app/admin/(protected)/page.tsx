@@ -6,131 +6,186 @@ import { prisma } from "@/lib/db";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { objectTypeLabels } from "@/lib/pricing/types";
 
+const openStatuses = ["NEW", "IN_PROGRESS", "SITE_VISIT_SCHEDULED"] as const;
+
 export default async function AdminDashboardPage() {
-  const [inquiryCount, manualReviewCount, recentInquiries, companySettings] =
-    await Promise.all([
-      prisma.inquiry.count(),
-      prisma.inquiry.count({
-        where: {
-          manualReviewRequired: true,
+  const [
+    inquiryCount,
+    openInquiryCount,
+    manualReviewCount,
+    offerSentCount,
+    recentInquiries,
+    companySettings,
+  ] = await Promise.all([
+    prisma.inquiry.count(),
+    prisma.inquiry.count({
+      where: {
+        status: {
+          in: [...openStatuses],
         },
-      }),
-      prisma.inquiry.findMany({
-        take: 6,
-        orderBy: {
-          createdAt: "desc",
-        },
-      }),
-      prisma.companySettings.findFirst(),
-    ]);
+      },
+    }),
+    prisma.inquiry.count({
+      where: {
+        manualReviewRequired: true,
+      },
+    }),
+    prisma.inquiry.count({
+      where: {
+        status: "OFFER_SENT",
+      },
+    }),
+    prisma.inquiry.findMany({
+      take: 6,
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+    prisma.companySettings.findFirst(),
+  ]);
 
   return (
     <div className="space-y-6">
       <section className="panel rounded-[2rem] p-6 sm:p-8">
         <p className="eyebrow text-[var(--accent-deep)]">Dashboard</p>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-balance">
-          {companySettings?.companyName ?? "Entruempler Angebotsrechner"}
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
-          Uebersicht ueber aktuelle Anfragen, manuelle Pruefungen und die
-          wichtigsten Konfigurationsbereiche.
-        </p>
+        <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-balance">
+              {companySettings?.companyName ?? "Entruempler Angebotsrechner"}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
+              Uebersicht ueber neue Anfragen, manuelle Pruefungen und den aktuellen
+              Arbeitsstand im Tagesgeschaeft.
+            </p>
+          </div>
+          {companySettings ? (
+            <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
+              <p className="font-semibold text-slate-950">{companySettings.contactPhone}</p>
+              <p>{companySettings.contactEmail}</p>
+              <p>{companySettings.serviceAreaNote}</p>
+            </div>
+          ) : null}
+        </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <article className="panel rounded-[1.6rem] p-5">
           <p className="text-sm text-[var(--foreground-soft)]">Anfragen gesamt</p>
           <p className="mt-3 text-3xl font-semibold text-slate-950">{inquiryCount}</p>
+          <p className="mt-2 text-xs leading-5 text-[var(--foreground-soft)]">
+            Alle im System gespeicherten Vorgaenge.
+          </p>
+        </article>
+        <article className="panel rounded-[1.6rem] p-5">
+          <p className="text-sm text-[var(--foreground-soft)]">Offene Bearbeitung</p>
+          <p className="mt-3 text-3xl font-semibold text-slate-950">{openInquiryCount}</p>
+          <p className="mt-2 text-xs leading-5 text-[var(--foreground-soft)]">
+            Neu, in Bearbeitung oder bereits zur Besichtigung eingeplant.
+          </p>
         </article>
         <article className="panel rounded-[1.6rem] p-5">
           <p className="text-sm text-[var(--foreground-soft)]">Manuelle Pruefung</p>
           <p className="mt-3 text-3xl font-semibold text-slate-950">{manualReviewCount}</p>
+          <p className="mt-2 text-xs leading-5 text-[var(--foreground-soft)]">
+            Faelle mit Risikohinweis oder hohem Abstimmungsbedarf.
+          </p>
         </article>
         <article className="panel rounded-[1.6rem] p-5">
-          <p className="text-sm text-[var(--foreground-soft)]">Schnellzugriff</p>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <p className="text-sm text-[var(--foreground-soft)]">Angebot gesendet</p>
+          <p className="mt-3 text-3xl font-semibold text-slate-950">{offerSentCount}</p>
+          <p className="mt-2 text-xs leading-5 text-[var(--foreground-soft)]">
+            Vorgaege, die bereits in die Angebotsphase gegangen sind.
+          </p>
+        </article>
+      </section>
+
+      {manualReviewCount > 0 ? (
+        <section className="rounded-[2rem] border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
+          <p className="font-semibold">Manuelle Pruefung im Blick behalten</p>
+          <p className="mt-2">
+            Es liegen aktuell {manualReviewCount} Anfrage(n) mit besonderem Pruefbedarf vor.
+            Diese Faelle sollten bevorzugt gesichtet oder telefonisch abgestimmt werden.
+          </p>
+        </section>
+      ) : null}
+
+      <section className="panel rounded-[2rem] p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-950">Neueste Anfragen</h2>
+            <p className="mt-2 text-sm text-[var(--foreground-soft)]">
+              Die letzten Leads mit Preisrahmen, Status und Risikohinweis.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
             <Link
               href="/admin/anfragen"
               className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white"
             >
-              Anfragen
+              Anfragen ansehen
             </Link>
             <Link
               href="/admin/preise"
               className="rounded-full border border-[var(--line)] px-4 py-2 text-sm font-semibold text-slate-950"
             >
-              Preise
+              Preise anpassen
             </Link>
           </div>
-        </article>
-      </section>
+        </div>
 
-      <section className="panel rounded-[2rem] p-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-950">Neueste Anfragen</h2>
-            <p className="mt-2 text-sm text-[var(--foreground-soft)]">
-              Die zuletzt eingegangenen Leads im Schnellueberblick.
+        {recentInquiries.length === 0 ? (
+          <div className="mt-8 rounded-[1.8rem] border border-dashed border-[var(--line)] bg-[var(--surface-muted)] px-6 py-8 text-sm leading-6 text-[var(--foreground-soft)]">
+            <p className="font-semibold text-slate-950">Noch keine Anfrage vorhanden</p>
+            <p className="mt-2">
+              Oeffnen Sie den Rechner und schicken Sie eine Testanfrage ab, um den kompletten
+              Ablauf mit Preisrahmen, PDF und Statusbearbeitung zu demonstrieren.
             </p>
           </div>
-          <Link
-            href="/admin/anfragen"
-            className="text-sm font-semibold text-[var(--accent-deep)]"
-          >
-            Alle ansehen
-          </Link>
-        </div>
-
-        <div className="mt-6 overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="text-[var(--foreground-soft)]">
-              <tr>
-                <th className="pb-3 font-medium">Kunde</th>
-                <th className="pb-3 font-medium">Schaetzung</th>
-                <th className="pb-3 font-medium">Status</th>
-                <th className="pb-3 font-medium">Eingang</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--line)]">
-              {recentInquiries.map((inquiry) => (
-                <tr key={inquiry.id}>
-                  <td className="py-4">
-                    <Link
-                      href={`/admin/anfragen/${inquiry.id}`}
-                      className="font-semibold text-slate-950"
-                    >
-                      {inquiry.customerName}
-                    </Link>
-                    <p className="text-xs text-[var(--foreground-soft)]">
-                      {objectTypeLabels[inquiry.objectType]} - {inquiry.postalCode}
-                    </p>
-                    {inquiry.manualReviewRequired ? (
-                      <div className="mt-2">
-                        <ManualReviewBadge />
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="py-4 font-medium text-slate-950">
-                    {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
-                  </td>
-                  <td className="py-4">
-                    <StatusBadge status={inquiry.status} />
-                  </td>
-                  <td className="py-4 text-[var(--foreground-soft)]">
-                    {formatDateTime(inquiry.createdAt)}
-                  </td>
-                </tr>
-              ))}
-              {recentInquiries.length === 0 ? (
+        ) : (
+          <div className="mt-6 overflow-x-auto">
+            <table className="min-w-full text-left text-sm">
+              <thead className="text-[var(--foreground-soft)]">
                 <tr>
-                  <td colSpan={4} className="py-8 text-center text-[var(--foreground-soft)]">
-                    Noch keine Anfragen vorhanden.
-                  </td>
+                  <th className="pb-3 font-medium">Kunde</th>
+                  <th className="pb-3 font-medium">Schaetzung</th>
+                  <th className="pb-3 font-medium">Status</th>
+                  <th className="pb-3 font-medium">Eingang</th>
                 </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-[var(--line)]">
+                {recentInquiries.map((inquiry) => (
+                  <tr key={inquiry.id} className="transition hover:bg-[rgba(247,243,234,0.65)]">
+                    <td className="py-4">
+                      <Link
+                        href={`/admin/anfragen/${inquiry.id}`}
+                        className="font-semibold text-slate-950"
+                      >
+                        {inquiry.customerName}
+                      </Link>
+                      <p className="text-xs text-[var(--foreground-soft)]">
+                        {objectTypeLabels[inquiry.objectType]} - {inquiry.postalCode}
+                      </p>
+                      {inquiry.manualReviewRequired ? (
+                        <div className="mt-2">
+                          <ManualReviewBadge />
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="py-4 font-medium text-slate-950">
+                      {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
+                    </td>
+                    <td className="py-4">
+                      <StatusBadge status={inquiry.status} />
+                    </td>
+                    <td className="py-4 text-[var(--foreground-soft)]">
+                      {formatDateTime(inquiry.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );

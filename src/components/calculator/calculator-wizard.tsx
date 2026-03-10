@@ -51,24 +51,27 @@ type CalculatorWizardProps = {
   pricingConfig: PricingConfig;
   companyName: string;
   companyPhone: string;
+  companyEmail: string;
+  serviceAreaNote: string;
+  estimateFootnote: string;
 };
 
 const steps = [
   {
-    title: "Objektdaten",
-    description: "Was soll geraeumt werden und wie gross ist der Bereich?",
+    title: "Objekt und Umfang",
+    description: "Was soll geraeumt werden und wie gross ist der Bereich insgesamt?",
   },
   {
-    title: "Zugang",
-    description: "Wie aufwendig ist der Zugang zum Objekt?",
+    title: "Zugang und Aufwand",
+    description: "Wie gut ist das Objekt erreichbar und wie aufwendig wirkt der Zugang?",
   },
   {
-    title: "Extras",
-    description: "Zusatzleistungen, Sonderfaelle und Postleitzahl.",
+    title: "Extras und Besonderheiten",
+    description: "Zusatzleistungen, Sonderfaelle und das Einsatzgebiet erfassen.",
   },
   {
-    title: "Kontakt",
-    description: "Ergebnis pruefen und Anfrage absenden.",
+    title: "Kontakt und Rueckmeldung",
+    description: "Preisrahmen pruefen und unverbindliche Anfrage absenden.",
   },
 ] as const;
 
@@ -146,6 +149,9 @@ export function CalculatorWizard({
   pricingConfig,
   companyName,
   companyPhone,
+  companyEmail,
+  serviceAreaNote,
+  estimateFootnote,
 }: CalculatorWizardProps) {
   const router = useRouter();
   const [stepIndex, setStepIndex] = useState(0);
@@ -157,6 +163,9 @@ export function CalculatorWizard({
   const estimate = payload ? calculateEstimate(pricingConfig, payload) : null;
   const manualReviewReasons =
     payload && estimate ? getManualReviewReasons(payload, estimate) : [];
+  const selectedExtrasPreview = formState.extraOptions
+    .map((value) => extraOptionLabels[value])
+    .slice(0, 3);
 
   async function handleSubmit() {
     setErrorMessage(null);
@@ -209,17 +218,24 @@ export function CalculatorWizard({
             <div>
               <p className="eyebrow text-[var(--accent-deep)]">{companyName}</p>
               <h1 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-                Unverbindliche Kostenschaetzung in wenigen Schritten
+                Preisrahmen in wenigen Schritten anfragen
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--foreground-soft)] sm:text-base">
-                Der Rechner liefert eine erste Preisspanne. Faelle mit Sonderrisiken
-                werden klar als manuelle Pruefung markiert.
+                Der Rechner liefert eine unverbindliche Kostenschaetzung. Besondere
+                Faelle werden vorsichtig markiert, damit wir sie persoenlich pruefen
+                koennen.
               </p>
             </div>
             <div className="hidden rounded-3xl border border-[var(--line)] bg-white/80 px-4 py-3 text-right text-sm text-[var(--foreground-soft)] sm:block">
-              <p className="font-medium text-slate-950">Rueckfragen?</p>
+              <p className="font-medium text-slate-950">Direkter Kontakt</p>
               <a href={`tel:${companyPhone}`} className="mt-1 block font-semibold text-[var(--accent-deep)]">
                 {companyPhone}
+              </a>
+              <a
+                href={`mailto:${companyEmail}`}
+                className="mt-1 block text-xs font-medium text-[var(--foreground-soft)]"
+              >
+                {companyEmail}
               </a>
             </div>
           </div>
@@ -303,6 +319,10 @@ export function CalculatorWizard({
                     }
                     placeholder="z. B. 85"
                   />
+                  <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                    Bitte die grob zu raeumende Gesamtflaeche angeben. Ein exakter
+                    Bauplan ist nicht noetig.
+                  </span>
                 </label>
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-950">
@@ -319,6 +339,9 @@ export function CalculatorWizard({
                     }
                     placeholder="z. B. 3"
                   />
+                  <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                    Hilft uns, Wohnungen und Haeuser besser einzuordnen.
+                  </span>
                 </label>
               </div>
             </div>
@@ -349,6 +372,10 @@ export function CalculatorWizard({
                     </button>
                   ))}
                 </div>
+                <p className="mt-3 text-xs leading-5 text-[var(--foreground-soft)]">
+                  Wenig = eher leer, normal = ueblicher Hausstand, stark = deutlich gefuellt,
+                  extrem = sehr hoher Aufwand.
+                </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
@@ -405,6 +432,9 @@ export function CalculatorWizard({
                 />
                 <span className="text-sm font-medium text-slate-950">Aufzug vorhanden</span>
               </label>
+              <p className="text-xs leading-5 text-[var(--foreground-soft)]">
+                Ein funktionierender Aufzug kann den Aufwand bei oberen Etagen reduzieren.
+              </p>
             </div>
           ) : null}
 
@@ -465,6 +495,10 @@ export function CalculatorWizard({
                     </button>
                   ))}
                 </div>
+                <p className="mt-3 text-xs leading-5 text-[var(--foreground-soft)]">
+                  Bitte Sonderfaelle offen angeben. So koennen wir die Anfrage sauber
+                  einordnen und bei Bedarf vorsichtiger kalkulieren.
+                </p>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
@@ -482,6 +516,9 @@ export function CalculatorWizard({
                     }
                     placeholder="45127"
                   />
+                  <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                    Ueber die PLZ ordnen wir die passende Anfahrtszone zu.
+                  </span>
                 </label>
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-950">
@@ -502,11 +539,44 @@ export function CalculatorWizard({
 
           {stepIndex === 3 ? (
             <div className="space-y-6">
+              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] p-5">
+                <p className="text-sm font-semibold text-slate-950">Ihre Anfrage auf einen Blick</p>
+                <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                  <div>
+                    <p className="text-[var(--foreground-soft)]">Objekt</p>
+                    <p className="font-medium text-slate-950">
+                      {objectTypeLabels[formState.objectType]}
+                      {formState.areaSqm ? `, ${formState.areaSqm} m2` : ""}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[var(--foreground-soft)]">Zugang</p>
+                    <p className="font-medium text-slate-950">
+                      {fillLevelLabels[formState.fillLevel]}, Etage {floorLevelLabels[formState.floorLevel]}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[var(--foreground-soft)]">PLZ / Einsatzgebiet</p>
+                    <p className="font-medium text-slate-950">
+                      {formState.postalCode || "Noch nicht angegeben"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[var(--foreground-soft)]">Extras</p>
+                    <p className="font-medium text-slate-950">
+                      {selectedExtrasPreview.length > 0
+                        ? selectedExtrasPreview.join(", ")
+                        : "Keine Extras gewaehlt"}
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-950">Name</span>
                   <input
                     className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                    placeholder="Vor- und Nachname"
                     value={formState.name}
                     onChange={(event) =>
                       setFormState((current) => ({ ...current, name: event.target.value }))
@@ -519,6 +589,7 @@ export function CalculatorWizard({
                   </span>
                   <input
                     className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                    placeholder="Telefon fuer Rueckfragen"
                     value={formState.phone}
                     onChange={(event) =>
                       setFormState((current) => ({ ...current, phone: event.target.value }))
@@ -531,6 +602,7 @@ export function CalculatorWizard({
                 <input
                   type="email"
                   className="h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 outline-none transition focus:border-[var(--accent)]"
+                  placeholder="name@example.de"
                   value={formState.email}
                   onChange={(event) =>
                     setFormState((current) => ({ ...current, email: event.target.value }))
@@ -551,6 +623,10 @@ export function CalculatorWizard({
                   placeholder="Zugang, Parkmoeglichkeit, besondere Hinweise ..."
                 />
               </label>
+              <div className="rounded-3xl border border-[var(--line)] bg-white px-5 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
+                Mit dem Absenden senden Sie eine unverbindliche Anfrage. Wir nutzen Ihre
+                Angaben nur fuer die erste Einordnung und die Rueckmeldung zu Ihrem Fall.
+              </div>
               <label className="hidden">
                 Website
                 <input
@@ -610,7 +686,7 @@ export function CalculatorWizard({
                   disabled={isSubmitting}
                   className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isSubmitting ? "Wird gesendet ..." : "Anfrage absenden"}
+                  {isSubmitting ? "Wird gesendet ..." : "Unverbindliche Anfrage senden"}
                 </button>
               )}
             </div>
@@ -629,7 +705,7 @@ export function CalculatorWizard({
                   {formatCurrency(estimate.rangeMin)} bis {formatCurrency(estimate.rangeMax)}
                 </p>
                 <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
-                  Unverbindliche Einschaetzung auf Basis deiner Eingaben.
+                  Unverbindliche Ersteinschaetzung auf Basis Ihrer bisherigen Angaben.
                 </p>
               </div>
               <dl className="mt-5 space-y-3 text-sm">
@@ -649,15 +725,23 @@ export function CalculatorWizard({
                   <dt className="text-[var(--foreground-soft)]">Zwischensumme</dt>
                   <dd className="font-medium text-slate-950">{formatCurrency(estimate.subtotal)}</dd>
                 </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-[var(--foreground-soft)]">Extras</dt>
+                  <dd className="font-medium text-slate-950">{estimate.extraSurcharges.length}</dd>
+                </div>
               </dl>
               {manualReviewReasons.length > 0 ? (
                 <div className="mt-5 rounded-3xl border border-amber-300 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
-                  <p className="font-semibold">Manuelle Pruefung empfohlen</p>
+                  <p className="font-semibold">Persoenliche Pruefung vorgesehen</p>
                   <ul className="mt-2 space-y-1">
                     {manualReviewReasons.map((reason) => (
                       <li key={reason.code}>- {reason.message}</li>
                     ))}
                   </ul>
+                  <p className="mt-3">
+                    Sie sehen weiterhin einen Preisrahmen. Fuer die finale Einschaetzung
+                    melden wir uns nach kurzer Pruefung persoenlich.
+                  </p>
                 </div>
               ) : (
                 <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
@@ -673,10 +757,15 @@ export function CalculatorWizard({
           )}
         </div>
         <div className="panel rounded-[2rem] p-6 text-sm leading-6 text-[var(--foreground-soft)]">
+          <p className="font-semibold text-slate-950">Einsatzgebiet und Kontakt</p>
+          <p className="mt-3">{serviceAreaNote}</p>
+          <p className="mt-3 font-medium text-slate-950">{companyPhone}</p>
+          <p>{companyEmail}</p>
+        </div>
+        <div className="panel rounded-[2rem] p-6 text-sm leading-6 text-[var(--foreground-soft)]">
           <p className="font-semibold text-slate-950">Wichtiger Hinweis</p>
           <p className="mt-3">
-            Diese Ausgabe ist eine unverbindliche Kostenschaetzung. Ein genauer Preis kann
-            nach Sichtung vor Ort oder nach genauerer Pruefung abweichen.
+            {estimateFootnote}
           </p>
         </div>
       </aside>

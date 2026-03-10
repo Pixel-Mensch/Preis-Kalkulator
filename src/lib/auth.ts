@@ -2,7 +2,7 @@ import "server-only";
 
 import { compare, hash } from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 const SESSION_COOKIE_NAME = "entruempler_admin_session";
@@ -25,6 +25,27 @@ function getSessionKey() {
   return new TextEncoder().encode(getSessionSecret());
 }
 
+async function shouldUseSecureCookies() {
+  const headerStore = await headers();
+  const forwardedProto = headerStore.get("x-forwarded-proto");
+  const host =
+    headerStore.get("x-forwarded-host") ?? headerStore.get("host") ?? "";
+
+  if (forwardedProto) {
+    return forwardedProto.split(",")[0]?.trim() === "https";
+  }
+
+  if (!host) {
+    return process.env.NODE_ENV === "production";
+  }
+
+  const normalizedHost = host.toLowerCase();
+  const isLocalHost =
+    normalizedHost.includes("localhost") || normalizedHost.startsWith("127.0.0.1");
+
+  return process.env.NODE_ENV === "production" && !isLocalHost;
+}
+
 export async function hashPassword(password: string) {
   return hash(password, 12);
 }
@@ -42,10 +63,11 @@ export async function createAdminSession(adminUserId: string) {
     .sign(getSessionKey());
 
   const cookieStore = await cookies();
+  const secureCookies = await shouldUseSecureCookies();
   cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: secureCookies,
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
