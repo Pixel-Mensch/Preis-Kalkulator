@@ -3,6 +3,7 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 import { formatCurrency, formatDate } from "@/lib/format";
 import type { InquiryCalculationSnapshot } from "@/lib/inquiries";
 import {
+  additionalAreaLabels,
   extraOptionLabels,
   fillLevelLabels,
   floorLevelLabels,
@@ -102,6 +103,15 @@ export async function generateInquiryPdf({
 
   drawLine("Objektdaten", { bold: true, gap: 18 });
   drawLine(`Objektart: ${objectTypeLabels[snapshot.input.objectType]}`);
+  drawLine(
+    `Zusaetzliche Bereiche: ${
+      (snapshot.input.additionalAreas ?? []).length > 0
+        ? (snapshot.input.additionalAreas ?? [])
+            .map((value) => additionalAreaLabels[value])
+            .join(", ")
+        : "Keine"
+    }`,
+  );
   drawLine(`Flaeche: ${snapshot.input.areaSqm} m2`);
   drawLine(`Fuellgrad: ${fillLevelLabels[snapshot.input.fillLevel]}`);
   drawLine(`Etage: ${floorLevelLabels[snapshot.input.floorLevel]}`);

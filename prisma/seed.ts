@@ -138,6 +138,7 @@ const demoInquiries: DemoInquirySeed[] = [
     createdAt: new Date("2026-03-07T08:30:00.000Z"),
     input: {
       objectType: "APARTMENT",
+      additionalAreas: ["CELLAR"],
       areaSqm: 58,
       roomCount: 2,
       fillLevel: "NORMAL",
@@ -162,6 +163,7 @@ const demoInquiries: DemoInquirySeed[] = [
     createdAt: new Date("2026-03-06T13:10:00.000Z"),
     input: {
       objectType: "HOUSE",
+      additionalAreas: ["CELLAR", "ATTIC"],
       areaSqm: 140,
       roomCount: 6,
       fillLevel: "HEAVY",
@@ -186,6 +188,7 @@ const demoInquiries: DemoInquirySeed[] = [
     createdAt: new Date("2026-03-08T10:25:00.000Z"),
     input: {
       objectType: "APARTMENT",
+      additionalAreas: [],
       areaSqm: 85,
       roomCount: 3,
       fillLevel: "EXTREME",
@@ -210,6 +213,7 @@ const demoInquiries: DemoInquirySeed[] = [
     createdAt: new Date("2026-03-05T07:50:00.000Z"),
     input: {
       objectType: "GARAGE",
+      additionalAreas: [],
       areaSqm: 34,
       roomCount: undefined,
       fillLevel: "HEAVY",

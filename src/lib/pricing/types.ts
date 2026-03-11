@@ -29,6 +29,8 @@ export const extraOptions = [
   "BULKY_ITEMS",
 ] as const;
 
+export const additionalAreaOptions = ["CELLAR", "ATTIC", "GARAGE"] as const;
+
 export const travelZoneCodes = ["A", "B", "C", "D"] as const;
 
 export const problemFlags = [
@@ -54,6 +56,7 @@ export type FillLevel = (typeof fillLevels)[number];
 export type FloorLevel = (typeof floorLevels)[number];
 export type WalkDistance = (typeof walkDistances)[number];
 export type ExtraOption = (typeof extraOptions)[number];
+export type AdditionalArea = (typeof additionalAreaOptions)[number];
 export type TravelZoneCode = (typeof travelZoneCodes)[number];
 export type ProblemFlag = (typeof problemFlags)[number];
 export type InquiryStatus = (typeof inquiryStatuses)[number];
@@ -85,6 +88,7 @@ export type PricingConfig = {
 
 export type EstimateInput = {
   objectType: ObjectType;
+  additionalAreas: AdditionalArea[];
   areaSqm: number;
   roomCount?: number | null;
   fillLevel: FillLevel;
@@ -163,6 +167,12 @@ export const extraOptionLabels: Record<ExtraOption, string> = {
   EXPRESS: "Express-Termin",
   EXTRA_AREA: "Zusatzbereich",
   BULKY_ITEMS: "Sperrige Einzelstuecke",
+};
+
+export const additionalAreaLabels: Record<AdditionalArea, string> = {
+  CELLAR: "Keller",
+  ATTIC: "Dachboden",
+  GARAGE: "Garage",
 };
 
 export const problemFlagLabels: Record<ProblemFlag, string> = {

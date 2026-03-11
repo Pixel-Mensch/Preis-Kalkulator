@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parsePricingSettingsFormData } from "@/lib/validation";
+import { parsePricingSettingsFormData, publicInquirySchema } from "@/lib/validation";
 
 function createValidPricingFormData() {
   const formData = new FormData();
@@ -86,6 +86,56 @@ describe("parsePricingSettingsFormData", () => {
     formData.set("maxFactor", "1.1");
 
     const result = parsePricingSettingsFormData(formData);
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("publicInquirySchema", () => {
+  it("accepts a compact inquiry with additional areas", () => {
+    const result = publicInquirySchema.safeParse({
+      objectType: "HOUSE",
+      additionalAreas: ["CELLAR", "ATTIC"],
+      areaSqm: 140,
+      roomCount: 6,
+      fillLevel: "HEAVY",
+      floorLevel: "GROUND",
+      hasElevator: false,
+      walkDistance: "MEDIUM",
+      extraOptions: ["DISMANTLING"],
+      problemFlags: [],
+      postalCode: "45470",
+      desiredDate: "2026-03-18",
+      name: "Thomas Neumann",
+      phone: "+49 171 3407752",
+      email: "thomas.neumann@example.de",
+      message: "Hausverkauf steht an.",
+      website: undefined,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects duplicated or conflicting additional areas", () => {
+    const result = publicInquirySchema.safeParse({
+      objectType: "CELLAR",
+      additionalAreas: ["CELLAR", "CELLAR"],
+      areaSqm: 12,
+      roomCount: undefined,
+      fillLevel: "LOW",
+      floorLevel: "GROUND",
+      hasElevator: false,
+      walkDistance: "SHORT",
+      extraOptions: [],
+      problemFlags: [],
+      postalCode: "45127",
+      desiredDate: undefined,
+      name: "Test Kunde",
+      phone: "0201 123456",
+      email: "test@example.de",
+      message: undefined,
+      website: undefined,
+    });
 
     expect(result.success).toBe(false);
   });

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import {
+  additionalAreaOptions,
   extraOptions,
   fillLevels,
   floorLevels,
@@ -8,6 +9,7 @@ import {
   problemFlags,
   travelZoneCodes,
   walkDistances,
+  type AdditionalArea,
   type ExtraOption,
   type FillLevel,
   type FloorLevel,
@@ -63,6 +65,10 @@ function parseField<Value>(
   return parsedValue.success ? parsedValue.data : null;
 }
 
+function hasUniqueValues<Value extends string>(values: Value[]) {
+  return new Set(values).size === values.length;
+}
+
 function optionalDateField() {
   return z
     .union([z.string(), z.undefined(), z.null()])
@@ -79,24 +85,52 @@ function optionalDateField() {
     });
 }
 
-export const publicInquirySchema = z.object({
-  objectType: z.enum(objectTypes),
-  areaSqm: z.number().int().min(1).max(5000),
-  roomCount: optionalNumberField(),
-  fillLevel: z.enum(fillLevels),
-  floorLevel: z.enum(floorLevels),
-  hasElevator: z.boolean(),
-  walkDistance: z.enum(walkDistances),
-  extraOptions: z.array(z.enum(extraOptions)).default([]),
-  problemFlags: z.array(z.enum(problemFlags)).default([]),
-  postalCode: z.string().regex(/^\d{5}$/),
-  desiredDate: optionalDateField(),
-  name: z.string().trim().min(2).max(120),
-  phone: z.string().trim().min(6).max(40),
-  email: z.email(),
-  message: optionalTextField(2000),
-  website: optionalTextField(120),
-});
+export const publicInquirySchema = z
+  .object({
+    objectType: z.enum(objectTypes),
+    additionalAreas: z.array(z.enum(additionalAreaOptions)).default([]),
+    areaSqm: z.number().int().min(1).max(5000),
+    roomCount: optionalNumberField(),
+    fillLevel: z.enum(fillLevels),
+    floorLevel: z.enum(floorLevels),
+    hasElevator: z.boolean(),
+    walkDistance: z.enum(walkDistances),
+    extraOptions: z.array(z.enum(extraOptions)).default([]),
+    problemFlags: z.array(z.enum(problemFlags)).default([]),
+    postalCode: z.string().regex(/^\d{5}$/),
+    desiredDate: optionalDateField(),
+    name: z.string().trim().min(2).max(120),
+    phone: z.string().trim().min(6).max(40),
+    email: z.email(),
+    message: optionalTextField(2000),
+    website: optionalTextField(120),
+  })
+  .superRefine((value, ctx) => {
+    if (!hasUniqueValues<AdditionalArea>(value.additionalAreas)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["additionalAreas"],
+        message: "Additional areas must be unique.",
+      });
+    }
+
+    if (!hasUniqueValues<ExtraOption>(value.extraOptions)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["extraOptions"],
+        message: "Extra options must be unique.",
+      });
+    }
+
+    const mainObjectAsAdditionalArea = value.objectType as AdditionalArea;
+    if (value.additionalAreas.includes(mainObjectAsAdditionalArea)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["additionalAreas"],
+        message: "Main object must not be duplicated as an additional area.",
+      });
+    }
+  });
 
 export const loginSchema = z.object({
   email: z.email(),

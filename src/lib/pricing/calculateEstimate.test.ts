@@ -59,6 +59,7 @@ describe("calculateEstimate", () => {
   it("calculates a realistic range for a normal apartment inquiry", () => {
     const result = calculateEstimate(pricingConfig, {
       objectType: "APARTMENT",
+      additionalAreas: ["CELLAR"],
       areaSqm: 60,
       roomCount: 3,
       fillLevel: "NORMAL",
@@ -80,6 +81,7 @@ describe("calculateEstimate", () => {
   it("applies the minimum order value for very small jobs", () => {
     const result = calculateEstimate(pricingConfig, {
       objectType: "CELLAR",
+      additionalAreas: [],
       areaSqm: 5,
       roomCount: 1,
       fillLevel: "LOW",
@@ -100,6 +102,7 @@ describe("calculateEstimate", () => {
   it("flags manual review for large high-risk combinations", () => {
     const input: EstimateInput = {
       objectType: "HOUSE",
+      additionalAreas: ["ATTIC", "CELLAR"],
       areaSqm: 280,
       roomCount: 10,
       fillLevel: "EXTREME",

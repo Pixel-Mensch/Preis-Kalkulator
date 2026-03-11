@@ -12,6 +12,7 @@ import {
   type InquiryCalculationSnapshot,
 } from "@/lib/inquiries";
 import {
+  additionalAreaLabels,
   extraOptionLabels,
   fillLevelLabels,
   floorLevelLabels,
@@ -52,6 +53,7 @@ export default async function InquiryDetailPage({
   const manualReviewReasons = parseJsonValue<Array<{ code: string; message: string }>>(
     inquiry.manualReviewReasons,
   );
+  const additionalAreas = snapshot.input.additionalAreas ?? [];
   const extraTotal = snapshot.estimate.extraSurcharges.reduce(
     (sum, surcharge) => sum + surcharge.amount,
     0,
@@ -167,9 +169,17 @@ export default async function InquiryDetailPage({
 
             <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
               <div>
-                <dt className="text-[var(--foreground-soft)]">Objektart</dt>
+                <dt className="text-[var(--foreground-soft)]">Hauptobjekt</dt>
                 <dd className="mt-1 font-medium text-slate-950">
                   {objectTypeLabels[inquiry.objectType]}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[var(--foreground-soft)]">Zusatzbereiche</dt>
+                <dd className="mt-1 font-medium text-slate-950">
+                  {additionalAreas.length > 0
+                    ? additionalAreas.map((value) => additionalAreaLabels[value]).join(", ")
+                    : "Keine"}
                 </dd>
               </div>
               <div>
