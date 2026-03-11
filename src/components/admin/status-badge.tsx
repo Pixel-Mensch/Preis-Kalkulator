@@ -18,10 +18,11 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex rounded-full border px-3.5 py-1.5 text-[0.72rem] font-semibold tracking-[0.02em]",
+        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.72rem] font-semibold tracking-[0.02em] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]",
         statusStyles[status],
       )}
     >
+      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-75" aria-hidden="true" />
       {inquiryStatusLabels[status]}
     </span>
   );

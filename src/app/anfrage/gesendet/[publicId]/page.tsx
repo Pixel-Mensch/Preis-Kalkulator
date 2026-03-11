@@ -177,6 +177,20 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
                   </li>
                 ))}
               </ul>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <a
+                  href={`tel:${companySettings.contactPhone}`}
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
+                >
+                  Direkt anrufen
+                </a>
+                <a
+                  href={`mailto:${companySettings.contactEmail}`}
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
+                >
+                  E-Mail senden
+                </a>
+              </div>
             </div>
           </div>
 

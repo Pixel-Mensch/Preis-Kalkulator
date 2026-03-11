@@ -14,7 +14,7 @@
   --success: #1f7a52;
   --warning: #8f5a05;
   --danger: #8f2b2b;
-  --shadow: 0 14px 40px rgba(37, 45, 57, 0.08);
+  --shadow: 0 18px 44px rgba(37, 45, 57, 0.09);
 }
 
 @theme inline {
@@ -39,6 +39,7 @@ body {
   min-height: 100vh;
   background-image:
     radial-gradient(circle at top left, rgba(199, 100, 45, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.5), transparent 32%),
     linear-gradient(180deg, #f8f4ec 0%, #f3eee4 100%);
 }
 
@@ -63,9 +64,10 @@ textarea {
 }
 
 .panel {
-  background: var(--surface);
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(255, 255, 255, 0.98));
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
 }
 
 .eyebrow {
@@ -103,20 +105,40 @@ textarea {
   text-wrap: balance;
 }
 
-/* ── Focus ring ─────────────────────────────────────── */
+/* Focus ring */
 :focus-visible {
   outline: 2.5px solid var(--accent);
   outline-offset: 3px;
 }
 
-/* ── Input / select / textarea glow on focus ────────── */
+/* Input / select / textarea glow on focus */
 input:focus,
 select:focus,
 textarea:focus {
   box-shadow: 0 0 0 3.5px var(--accent-soft);
 }
 
-/* ── Spinner ─────────────────────────────────────────── */
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--foreground-soft) 82%, white);
+}
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Spinner */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -124,7 +146,7 @@ textarea:focus {
   animation: spin 0.75s linear infinite;
 }
 
-/* ── Entrance animation ──────────────────────────────── */
+/* Entrance animation */
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -139,7 +161,7 @@ textarea:focus {
   animation: fade-up 0.4s ease both;
 }
 
-/* ── Card hover lift ─────────────────────────────────── */
+/* Card hover lift */
 .lift {
   transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
@@ -148,16 +170,30 @@ textarea:focus {
   box-shadow: 0 24px 56px rgba(37, 45, 57, 0.14);
 }
 
-/* ── Progress bar transition ─────────────────────────── */
+/* Progress bar transition */
 .progress-bar {
   transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Select arrow custom ─────────────────────────────── */
+/* Select arrow custom */
 select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%235c6572' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
   padding-right: 36px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

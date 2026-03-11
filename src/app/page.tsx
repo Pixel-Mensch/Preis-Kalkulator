@@ -55,11 +55,32 @@ const trustItems = [
   "Preisrahmen in 5 Minuten",
 ] as const;
 
+const heroStats = [
+  {
+    value: "ca. 5 Minuten",
+    label: "bis zur ersten Orientierung",
+  },
+  {
+    value: "1 strukturierte Anfrage",
+    label: "statt mehrerer unklarer Nachrichten",
+  },
+  {
+    value: "Sonderfälle sichtbar",
+    label: "für persönliche Prüfung markiert",
+  },
+] as const;
+
 const rightPanelItems = [
   "Objektart, Fläche und Füllgrad",
   "Etage, Aufzug und Laufweg",
   "Extras wie Küche abbauen oder besenrein",
   "PLZ, Wunschdatum und Kontaktdaten",
+] as const;
+
+const reassuranceItems = [
+  "Preisrahmen statt starrem Festpreis",
+  "Persönliche Prüfung bei Sonderfällen",
+  "Direkter Kontakt ohne Registrierung",
 ] as const;
 
 function CheckIcon({ className }: { className?: string }) {
@@ -116,12 +137,20 @@ export default async function HomePage() {
       <main>
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="section-anchor">
-          <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
+          <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1.08fr_0.92fr] lg:py-18">
             <div className="self-center">
-              <p className="eyebrow text-[var(--accent-deep)]">
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full border border-[var(--line)] bg-white/80 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">
+                  Digitale Kostenschätzung
+                </span>
+                <span className="rounded-full border border-[var(--line)] bg-white/80 px-3 py-1.5 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[var(--foreground-soft)]">
+                  Unverbindliche Anfrage
+                </span>
+              </div>
+              <p className="eyebrow mt-4 text-[var(--accent-deep)]">
                 {companySettings.companyName}
               </p>
-              <h1 className="mt-5 text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+              <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.7rem] lg:leading-[1.04]">
                 Entrümpelung anfragen und sofort einen unverbindlichen
                 Preisrahmen erhalten
               </h1>
@@ -144,18 +173,22 @@ export default async function HomePage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/rechner"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(199,100,45,0.35)] transition hover:bg-[var(--accent-deep)] hover:shadow-[0_6px_20px_rgba(199,100,45,0.45)]"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(199,100,45,0.34)] transition hover:bg-[var(--accent-deep)] hover:shadow-[0_12px_28px_rgba(199,100,45,0.4)]"
                 >
                   Jetzt Kostenschätzung starten
                   <ArrowRightIcon className="h-4 w-4" />
                 </Link>
                 <a
                   href={`tel:${companySettings.contactPhone}`}
-                  className="inline-flex h-12 items-center justify-center rounded-full border border-[var(--line)] px-6 text-sm font-semibold text-slate-950 transition hover:bg-white"
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-[var(--line)] bg-white/70 px-6 text-sm font-semibold text-slate-950 transition hover:bg-white"
                 >
                   Telefonisch anfragen
                 </a>
               </div>
+              <p className="mt-3 text-sm text-[var(--foreground-soft)]">
+                Ohne Registrierung. Die Einschätzung bleibt unverbindlich und dient der
+                ersten Orientierung.
+              </p>
 
               {/* Trust strip */}
               <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
@@ -169,11 +202,25 @@ export default async function HomePage() {
                   </span>
                 ))}
               </div>
+
+              <div className="mt-7 grid gap-3 sm:grid-cols-3">
+                {heroStats.map((item) => (
+                  <div
+                    key={item.value}
+                    className="rounded-[1.6rem] border border-[var(--line)] bg-white/72 px-4 py-4 shadow-[0_14px_30px_rgba(37,45,57,0.05)]"
+                  >
+                    <p className="text-sm font-semibold text-slate-950">{item.value}</p>
+                    <p className="mt-1 text-xs leading-5 text-[var(--foreground-soft)]">
+                      {item.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Rechte Spalte */}
             <div className="space-y-4">
-              <div className="panel rounded-[2.2rem] p-6 sm:p-8">
+              <div className="panel grid-glow overflow-hidden rounded-[2.2rem] p-6 sm:p-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--accent-deep)]">
                   So hilft die Anfrage
                 </p>
@@ -190,6 +237,24 @@ export default async function HomePage() {
                     </li>
                   ))}
                 </ul>
+              </div>
+              <div className="panel rounded-[2rem] p-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--accent-deep)]">
+                  Verlässliche Einordnung
+                </p>
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-[var(--foreground-soft)]">
+                  {reassuranceItems.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5">
+                      <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent)]" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-5 rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
+                  <p className="font-semibold text-slate-950">{companySettings.contactPhone}</p>
+                  <p>{companySettings.contactEmail}</p>
+                  <p className="mt-2">{companySettings.serviceAreaNote}</p>
+                </div>
               </div>
               <div className="panel rounded-[2rem] p-6">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--accent-deep)]">
@@ -218,6 +283,10 @@ export default async function HomePage() {
               <h2 className="mt-4 text-3xl font-semibold tracking-tight text-balance">
                 Praktisch für Kunden, hilfreich für die schnelle Bearbeitung
               </h2>
+              <p className="mt-3 text-sm leading-7 text-[var(--foreground-soft)]">
+                Die Anfrage sammelt genau die Angaben, die für eine erste Einschätzung und
+                eine sinnvolle Rückmeldung wirklich gebraucht werden.
+              </p>
             </div>
             <div className="mt-8 grid gap-6 lg:grid-cols-3">
               {customerBenefits.map((item) => (
