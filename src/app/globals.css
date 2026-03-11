@@ -102,3 +102,62 @@ textarea {
 .text-balance {
   text-wrap: balance;
 }
+
+/* ── Focus ring ─────────────────────────────────────── */
+:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ── Input / select / textarea glow on focus ────────── */
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3.5px var(--accent-soft);
+}
+
+/* ── Spinner ─────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.75s linear infinite;
+}
+
+/* ── Entrance animation ──────────────────────────────── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.4s ease both;
+}
+
+/* ── Card hover lift ─────────────────────────────────── */
+.lift {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 56px rgba(37, 45, 57, 0.14);
+}
+
+/* ── Progress bar transition ─────────────────────────── */
+.progress-bar {
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Select arrow custom ─────────────────────────────── */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.5 4.5L6 8L9.5 4.5' stroke='%235c6572' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px !important;
+}

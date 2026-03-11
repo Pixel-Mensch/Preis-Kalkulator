@@ -527,6 +527,9 @@ export function CalculatorWizard({
                       </option>
                     ))}
                   </select>
+                  <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                    Zum Beispiel Demontage, Küche abbauen oder besenrein.
+                  </span>
                 </label>
 
                 <label className="block">
@@ -558,6 +561,9 @@ export function CalculatorWizard({
                       </option>
                     ))}
                   </select>
+                  <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                    Zum Beispiel Schimmel, Schädlingsbefall oder Sondermüll.
+                  </span>
                 </label>
               </div>
 

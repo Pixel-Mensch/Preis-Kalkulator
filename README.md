@@ -89,7 +89,7 @@ What they do:
 
 The seed creates:
 
-- Demo company: `Klarraum Entruempelung Ruhr`
+- Demo company: `Klarraum Entrümpelung Ruhr`
 - Demo admin user from `.env`
 - Active pricing profile for entruempelung jobs
 - Four believable sample inquiries:

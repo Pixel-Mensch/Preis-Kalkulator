@@ -35,6 +35,12 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
     notFound();
   }
 
+  const nextSteps = [
+    `Wir prüfen Ihre Angaben und melden uns bei Bedarf mit Rückfragen.`,
+    `Bei besonderen Fällen empfehlen wir meist eine kurze Abstimmung oder Besichtigung.`,
+    `Sie erreichen uns direkt unter ${companySettings.contactPhone} oder ${companySettings.contactEmail}.`,
+  ];
+
   return (
     <SiteShell
       companyName={companySettings.companyName}
@@ -45,56 +51,131 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
       serviceAreaNote={companySettings.serviceAreaNote}
       supportHours={companySettings.supportHours}
     >
-      <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8 lg:py-14">
+      <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8 lg:py-16">
         <div className="panel rounded-[2rem] p-8 sm:p-10">
-          <p className="eyebrow text-[var(--accent-deep)]">Anfrage eingegangen</p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Vielen Dank, {inquiry.customerName}.
-          </h1>
-          <p className="mt-4 text-base leading-7 text-[var(--foreground-soft)]">
-            Ihre Anfrage wurde gespeichert. Die aktuelle unverbindliche Einschaetzung
-            liegt bei{" "}
+          {/* Kopfzeile */}
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)]">
+              <svg
+                className="h-6 w-6 text-emerald-600"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 13l4 4L19 7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <p className="eyebrow text-[var(--accent-deep)]">
+                Anfrage eingegangen
+              </p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                Vielen Dank, {inquiry.customerName}.
+              </h1>
+            </div>
+          </div>
+
+          <p className="mt-6 text-base leading-7 text-[var(--foreground-soft)]">
+            Ihre Anfrage wurde gespeichert. Die aktuelle unverbindliche
+            Einschätzung liegt bei{" "}
             <span className="font-semibold text-slate-950">
-              {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
+              {formatCurrency(inquiry.estimateMin)} bis{" "}
+              {formatCurrency(inquiry.estimateMax)}
             </span>
             .
           </p>
 
           {inquiry.manualReviewRequired ? (
-            <div className="mt-6 rounded-3xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
-              Ihre Anfrage enthaelt Angaben, die wir persoenlich pruefen sollten. Der
-              Preisrahmen bleibt unverbindlich. Wir melden uns mit einer sorgfaeltigen
-              Rueckmeldung bei Ihnen.
+            <div className="mt-5 flex items-start gap-3 rounded-3xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
+              <svg
+                className="mt-0.5 h-4 w-4 shrink-0 text-amber-600"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8 2L14 13H2L8 2z"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8 7v3M8 11.5v.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span>
+                Ihre Anfrage enthält Angaben, die wir persönlich prüfen sollten.
+                Der Preisrahmen bleibt unverbindlich. Wir melden uns mit einer
+                sorgfältigen Rückmeldung bei Ihnen.
+              </span>
             </div>
           ) : (
-            <div className="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900">
-              Ihre Angaben sind vollstaendig genug fuer eine erste Einordnung. Wir koennen
-              jetzt gezielter auf Ihre Anfrage reagieren.
+            <div className="mt-5 flex items-start gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900">
+              <svg
+                className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 8.5L6.5 12L13 5"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>
+                Ihre Angaben sind vollständig genug für eine erste Einordnung.
+                Wir können jetzt gezielter auf Ihre Anfrage reagieren.
+              </span>
             </div>
           )}
 
+          {/* Info-Raster */}
           <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
             <dl className="grid gap-4 rounded-3xl bg-[var(--surface-muted)] p-5 text-sm sm:grid-cols-2">
               <div>
-                <dt className="font-medium text-slate-950">Vorgangsnummer</dt>
-                <dd className="mt-1 font-mono text-[var(--foreground-soft)]">
+                <dt className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--foreground-soft)]">
+                  Vorgangsnummer
+                </dt>
+                <dd className="mt-1.5 font-mono text-[var(--foreground)]">
                   {inquiry.publicId}
                 </dd>
               </div>
               <div>
-                <dt className="font-medium text-slate-950">Eingegangen</dt>
-                <dd className="mt-1 text-[var(--foreground-soft)]">
+                <dt className="text-xs font-semibold uppercase tracking-[0.15em] text-[var(--foreground-soft)]">
+                  Eingegangen
+                </dt>
+                <dd className="mt-1.5 text-[var(--foreground)]">
                   {formatDateTime(inquiry.createdAt)}
                 </dd>
               </div>
             </dl>
 
             <div className="rounded-3xl border border-[var(--line)] bg-white p-5 text-sm">
-              <p className="font-semibold text-slate-950">Wie es jetzt weitergeht</p>
-              <ul className="mt-3 space-y-2 leading-6 text-[var(--foreground-soft)]">
-                <li>- Wir pruefen Ihre Angaben und melden uns bei Bedarf mit Rueckfragen.</li>
-                <li>- Bei besonderen Faellen empfehlen wir meist eine kurze Abstimmung oder Besichtigung.</li>
-                <li>- Sie erreichen uns direkt unter {companySettings.contactPhone} oder {companySettings.contactEmail}.</li>
+              <p className="font-semibold text-slate-950">
+                Wie es jetzt weitergeht
+              </p>
+              <ul className="mt-3 space-y-2.5 leading-6 text-[var(--foreground-soft)]">
+                {nextSteps.map((step, index) => (
+                  <li key={index} className="flex items-start gap-2.5">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-bold text-[var(--accent-deep)]">
+                      {index + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -102,7 +183,7 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/rechner"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)]"
+              className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(199,100,45,0.3)] transition hover:bg-[var(--accent-deep)]"
             >
               Neue Anfrage starten
             </Link>
