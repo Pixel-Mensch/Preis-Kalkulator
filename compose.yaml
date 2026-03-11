@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .
-    image: entruempler-angebotsrechner-v1:latest
+    image: entruempler-angebotsrechner:latest
     restart: unless-stopped
     ports:
       - "3000:3000"

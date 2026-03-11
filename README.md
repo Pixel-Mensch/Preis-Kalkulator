@@ -96,6 +96,14 @@ Für einen frischen Demo-Stand:
 npm run db:reset-demo
 ```
 
+Für eine reine Demo- oder Screenshot-Instanz mit Docker Compose geht derselbe Reset auch direkt im Container:
+
+```bash
+docker compose exec app npm run db:reset-demo
+```
+
+Wichtig: diesen Reset nur auf Demo-Daten verwenden, nicht auf einer bereits genutzten Live-Instanz.
+
 Öffnen:
 
 - Startseite: `http://localhost:3000`
@@ -119,6 +127,16 @@ ADMIN_PASSWORD="ChangeMe123!"
 ### Empfohlener Weg
 
 Für den ersten zahlenden Kunden ist Docker Compose auf einem kleinen Linux-Server oder Docker-Host der robusteste Weg. Die App bleibt eine einzelne Instanz mit SQLite-Datei auf dem Host.
+
+Für das Standard-Docker-Compose-Deployment musst du in `.env` normalerweise nur diese Werte selbst setzen:
+
+- `SESSION_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `ADMIN_NAME`
+- optional alle `COMPANY_*` Werte, wenn die Firmendaten direkt beim Bootstrap angelegt werden sollen
+
+`DATABASE_URL`, `HOSTNAME`, `PORT` und `RUN_DB_MIGRATE_ON_START` werden im Standard-Compose-Setup bereits passend gesetzt.
 
 Schnellstart:
 
@@ -144,11 +162,10 @@ Die Health-Route liefert:
 
 ### Wichtige Umgebungsvariablen
 
-- `DATABASE_URL`: SQLite-Datei oder später externer Datenbankpfad
 - `SESSION_SECRET`: mindestens 32 zufällige Zeichen in Produktion
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`: Erstzugang und Passwort-Sync
-- `RUN_DB_MIGRATE_ON_START`: steuert den SQL-Bootstrap beim App-Start
 - optionale `COMPANY_*`-Werte: legen Firmendaten beim Bootstrap direkt an
+- `DATABASE_URL`: nur für lokale Sonderfälle oder Bare-Metal-Betrieb relevant
 
 Die vollständigen Schritte stehen in [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -182,6 +199,6 @@ npm run build
 ## Nächste sinnvolle Schritte
 
 - Preislogik mit echten Betriebswerten kalibrieren
-- Admin-Filter für Status, PLZ und manuelle Prüfung ergänzen
+- Browser- und Mobile-QA auf echten Geräten durchführen
 - PostgreSQL für breitere Pilot- oder Produktivnutzung vorbereiten
 - Passwortänderung direkt im Admin ergänzen

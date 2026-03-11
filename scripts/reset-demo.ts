@@ -1,24 +1,25 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import path from "node:path";
 
-function readDatabaseFilePath() {
-  const envPath = path.resolve(process.cwd(), ".env");
-  const fallbackPath = path.resolve(process.cwd(), "prisma", "dev.db");
+import { loadLocalEnvFile } from "./lib/load-local-env";
 
-  if (!existsSync(envPath)) {
-    return fallbackPath;
+function resolveDatabaseFilePath() {
+  const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+
+  if (!databaseUrl.startsWith("file:")) {
+    throw new Error(
+      "db:reset-demo supports only SQLite DATABASE_URL values that start with file:.",
+    );
   }
 
-  const envContent = readFileSync(envPath, "utf8");
-  const matchedUrl = envContent.match(/^DATABASE_URL=(?:"|')?(file:[^\r\n"']+)(?:"|')?$/m);
+  const relativeOrAbsolutePath = databaseUrl.replace(/^file:/, "");
 
-  if (!matchedUrl) {
-    return fallbackPath;
+  if (path.isAbsolute(relativeOrAbsolutePath)) {
+    return relativeOrAbsolutePath;
   }
 
-  const fileUrl = matchedUrl[1].replace(/^file:/, "");
-  return path.resolve(process.cwd(), "prisma", fileUrl);
+  return path.resolve(process.cwd(), "prisma", relativeOrAbsolutePath);
 }
 
 function runNpmScript(scriptName: string) {
@@ -42,7 +43,9 @@ function removeIfExists(filePath: string) {
   }
 }
 
-const databasePath = readDatabaseFilePath();
+loadLocalEnvFile();
+
+const databasePath = resolveDatabaseFilePath();
 const journalPath = `${databasePath}-journal`;
 
 console.log(`Resetting local demo database at ${databasePath}`);

@@ -54,6 +54,7 @@ prisma/dev.db-journal
 prisma/init.sql
 data/
 backups/
+demo/assets/screenshots/
 
 # Local-only control files
 AGENTS.md

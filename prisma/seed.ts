@@ -406,6 +406,7 @@ async function seedDemoInquiries() {
 async function main() {
   const adminEmail = process.env.ADMIN_EMAIL ?? "demo@klarraum-ruhr.de";
   const adminPassword = process.env.ADMIN_PASSWORD ?? "ChangeMe123!";
+  const adminName = process.env.ADMIN_NAME ?? "Administrator";
 
   await prisma.companySettings.upsert({
     where: { id: companySettingsId },
@@ -425,11 +426,11 @@ async function main() {
     where: { email: adminEmail },
     create: {
       email: adminEmail,
-      name: "Demo Admin",
+      name: adminName,
       passwordHash: await hash(adminPassword, 12),
     },
     update: {
-      name: "Demo Admin",
+      name: adminName,
       passwordHash: await hash(adminPassword, 12),
     },
   });

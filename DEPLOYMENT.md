@@ -1,40 +1,41 @@
-# Deployment Guide
+# Deployment auf Hetzner
 
-## Scope
+## Zielbild
 
-This project is prepared for a single customer installation on:
+Für den ersten Livegang ist dieses Projekt für eine einfache Einzelinstanz vorbereitet:
 
-- a small Linux server with Docker and Docker Compose
-- a small Linux host with Node.js 20 as a fallback
+- ein Hetzner-Server
+- Docker Compose
+- eine SQLite-Datei
+- ein Admin-Zugang
 
-The recommended target is Docker Compose with a host-mounted SQLite file.
+Das ist bewusst schlicht gehalten, damit die App schnell online geht und für Demo, Screenshots und erste Gespräche nutzbar ist.
 
-## Required Inputs Before Installation
+## Was du vorab brauchst
 
-The customer or project owner should provide:
+Vor dem Deployment solltest du diese Dinge bereit haben:
 
-- company name and contact details
-- service area wording
-- estimate disclaimer wording
-- final pricing values
-- admin email address
-- initial admin password
-- domain or subdomain target
-- reverse proxy / TLS decision
+- SSH-Zugang zu deinem Hetzner-Server
+- deine Admin-E-Mail
+- ein sicheres Startpasswort
+- einen langen `SESSION_SECRET`
+- optional bereits die finalen Firmendaten
 
-## Required Environment Variables
+Optional, aber für Außenwirkung sinnvoll:
 
-Use `.env.example` as the starting point.
+- Domain oder Subdomain
+- HTTPS über einen Reverse Proxy
 
-Required in production:
+## Welche ENV-Werte du selbst setzen musst
 
-- `DATABASE_URL`
+Für das Standard-Compose-Setup auf Hetzner musst du in `.env` normalerweise nur diese Werte selbst pflegen:
+
 - `SESSION_SECRET`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
 - `ADMIN_NAME`
 
-Optional during bootstrap:
+Optional beim ersten Bootstrap:
 
 - `COMPANY_NAME`
 - `COMPANY_EMAIL`
@@ -47,139 +48,144 @@ Optional during bootstrap:
 - `COMPANY_ESTIMATE_FOOTNOTE`
 - `COMPANY_SUPPORT_HOURS`
 
-Rules:
+Wichtig:
 
-- `SESSION_SECRET` must be a real secret with at least 32 characters.
-- `ADMIN_PASSWORD` must not remain the default demo password.
-- Either provide all required `COMPANY_*` values for bootstrap or none of them.
+- `SESSION_SECRET` muss mindestens 32 Zeichen lang sein
+- `ADMIN_PASSWORD` darf nicht auf `ChangeMe123!` bleiben
+- entweder alle Pflichtwerte aus `COMPANY_*` setzen oder keinen davon
 
-## Recommended Docker Compose Installation
+Nicht nötig für den Standard-Compose-Weg:
 
-1. Install Docker and Docker Compose on the host.
-2. Copy the repository to the server.
-3. Create the runtime directories:
+- `DATABASE_URL`
+- `HOSTNAME`
+- `PORT`
+- `RUN_DB_MIGRATE_ON_START`
+
+Diese Werte werden im Compose-Setup bereits passend gesetzt.
+
+## Empfohlener Hetzner-Weg für Anfänger
+
+### 1. Server anlegen
+
+Empfehlung für den ersten Start:
+
+- Ubuntu 24.04 LTS
+- kleiner Cloud-Server reicht für Demo und erste Vorführung
+- SSH-Key direkt beim Anlegen hinterlegen
+
+### 2. Auf den Server verbinden
+
+```bash
+ssh root@DEINE_SERVER_IP
+```
+
+### 3. Docker installieren
+
+Installiere Docker und Docker Compose nach der offiziellen Docker-Anleitung für Ubuntu.
+
+### 4. Repository holen
+
+```bash
+apt update
+apt install -y git
+git clone https://github.com/Pixel-Mensch/Preis-Kalkulator.git
+cd Preis-Kalkulator
+```
+
+### 5. Laufzeitordner und ENV vorbereiten
 
 ```bash
 mkdir -p data
-```
-
-4. Copy and edit the environment file:
-
-```bash
 cp .env.example .env
 ```
 
-5. Adjust at least:
+### 6. `.env` bearbeiten
+
+Passe mindestens diese Werte an:
 
 ```env
-SESSION_SECRET="replace-this-with-a-real-random-secret"
-ADMIN_EMAIL="admin@customer-domain.de"
-ADMIN_PASSWORD="replace-this-with-a-real-password"
+SESSION_SECRET="hier-ein-langes-zufaelliges-geheimnis-mit-mindestens-32-zeichen"
+ADMIN_EMAIL="admin@deine-domain.de"
+ADMIN_PASSWORD="hier-ein-sicheres-startpasswort"
 ADMIN_NAME="Administrator"
 ```
 
-6. Build and start the container:
+Wenn du Firmendaten direkt anlegen willst, setze zusätzlich alle `COMPANY_*` Werte. Sonst pflegst du sie danach im Admin.
+
+### 7. Container bauen und starten
 
 ```bash
 docker compose build
 docker compose up -d
 ```
 
-7. Run the one-time bootstrap:
+### 8. Einmaligen Bootstrap ausführen
 
 ```bash
 docker compose exec app npm run bootstrap:single-instance
 ```
 
-8. Verify health:
+Dabei werden:
+
+- Migrationen angewendet
+- der Admin-Zugang angelegt oder aktualisiert
+- Preisprofil und optional Firmendaten vorbereitet
+
+### 9. Health prüfen
 
 ```bash
 curl http://localhost:3000/api/health
 ```
 
-Expected result:
+Das gewünschte Ergebnis ist:
 
-- `status: "ok"` for a customer-ready installation
-- `status: "degraded"` if admin, pricing, or company setup is still incomplete
+- `status: "ok"` für betriebsbereit
+- `status: "degraded"` wenn noch Firmendaten, Preisprofil oder Admin fehlen
+- `status: "error"` bei technischem Problem
 
-## Bare-Metal Node.js Installation
+### 10. App im Browser öffnen
 
-This is supported for a small host, but Docker remains the preferred path.
+Für den ersten Test:
 
-1. Install Node.js 20 and npm.
-2. Copy the repository to the server.
-3. Create `.env`.
-4. Use an explicit database file path outside the repository, for example:
+- `http://DEINE_SERVER_IP:3000`
+- `http://DEINE_SERVER_IP:3000/rechner`
+- `http://DEINE_SERVER_IP:3000/admin/login`
 
-```env
-DATABASE_URL="file:/var/lib/entruempler-angebotsrechner/app.db"
-```
+Für Screenshots und erste Vorführung reicht das.
 
-5. Install dependencies:
+Für eine ernsthafte öffentliche URL solltest du danach Domain und HTTPS sauber davorsetzen.
 
-```bash
-npm install
-```
+## Frischer Demo-Stand auf dem Server
 
-6. Build the app:
+Wenn deine Instanz nur für Screenshots oder Vorführungen gedacht ist, kannst du den Demo-Zustand komplett neu aufbauen:
 
 ```bash
-npm run build
+docker compose exec app npm run db:reset-demo
 ```
 
-7. Run bootstrap once:
+Danach sind Demo-Firmendaten, Preisprofil, Admin und Beispielanfragen wieder frisch vorhanden.
 
-```bash
-npm run bootstrap:single-instance
-```
+Wichtig:
 
-8. Start the app:
+- nur auf Demo- oder Screenshot-Instanzen verwenden
+- nicht auf einer Instanz mit echten Kundenanfragen verwenden
 
-```bash
-npm run start
-```
+## Bare-Metal-Fallback ohne Docker
 
-Notes:
+Nur nutzen, wenn Docker wirklich keine Option ist.
 
-- The current single-instance operational scripts are TypeScript-based, so the fallback Node deployment uses the full install and not an `--omit=dev` production-only install.
-- For persistent operation, place the process behind systemd or another supervisor.
+1. Node.js 20 installieren
+2. Repository auf den Server kopieren
+3. `.env` anlegen
+4. `DATABASE_URL` auf einen echten Linux-Pfad setzen, z. B. `file:/var/lib/entruempler-angebotsrechner/app.db`
+5. `npm install`
+6. `npm run build`
+7. `npm run bootstrap:single-instance`
+8. `npm run start`
 
-## First Login and Password Process
+Für dauerhaften Betrieb zusätzlich einen Process Manager wie `systemd` verwenden.
 
-The first admin account is created or updated from the environment:
-
-- `npm run bootstrap:single-instance`
-- `npm run admin:sync`
-
-Use this process for:
-
-- initial admin creation
-- password reset
-- admin email replacement
-
-There is currently no in-app password change flow. This is acceptable for the current single-instance delivery but should be improved later.
-
-## Health Check
-
-Route:
-
-```text
-/api/health
-```
-
-Checks included:
-
-- runtime environment validity
-- database access
-- company settings present
-- active pricing profile present
-- admin user present
-
-The route is intended for single-instance diagnostics and basic uptime monitoring.
-
-## Update Flow
-
-Docker Compose:
+## Update-Ablauf
 
 ```bash
 git pull
@@ -189,22 +195,11 @@ docker compose exec app npm run bootstrap:single-instance
 curl http://localhost:3000/api/health
 ```
 
-Bare metal:
+## Aktuelle Grenzen
 
-```bash
-git pull
-npm install
-npm run build
-npm run bootstrap:single-instance
-npm run start
-```
-
-## Current Production Limits
-
-- single tenant only
-- SQLite only for the first live installation
-- in-memory rate limiting only
-- no background jobs
-- no email delivery
-- no file uploads
-- no multi-instance coordination
+- Single-Tenant-Setup
+- SQLite für den ersten Livegang
+- In-Memory Rate Limiting
+- keine E-Mail-Zustellung
+- keine Datei-Uploads
+- keine Multi-Instance-Koordination

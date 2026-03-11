@@ -160,6 +160,21 @@ Important:
 - create a database backup before every update
 - verify the health route after every restart
 
+## Demo Reset für Screenshots oder Vorführungen
+
+Nur auf einer Demo-Instanz verwenden:
+
+```bash
+docker compose exec app npm run db:reset-demo
+```
+
+Danach sind Demo-Firmendaten, Preisprofil, Admin und Beispielanfragen wieder in einem frischen Vorführzustand.
+
+Wichtig:
+
+- nicht auf einer bereits genutzten Live-Instanz mit echten Anfragen verwenden
+- vor jedem Reset prüfen, ob die Datenbank wirklich nur Demo-Daten enthält
+
 ## Recovery Notes
 
 If the app fails during startup:
