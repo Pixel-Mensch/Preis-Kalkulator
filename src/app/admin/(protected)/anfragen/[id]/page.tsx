@@ -68,7 +68,7 @@ export default async function InquiryDetailPage({
               href="/admin/anfragen"
               className="text-sm font-semibold text-[var(--accent-deep)]"
             >
-              Zurueck zur Liste
+              Zurück zur Liste
             </Link>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-balance">
               {inquiry.customerName}
@@ -78,8 +78,8 @@ export default async function InquiryDetailPage({
               {formatDateTime(inquiry.createdAt)}
             </p>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--foreground-soft)]">
-              Strukturierte Anfrage mit gespeichertem Kalkulations-Snapshot. Spaetere
-              Preisupdates veraendern diesen Vorgang nicht rueckwirkend.
+              Strukturierte Anfrage mit gespeichertem Kalkulations-Snapshot. Spätere
+              Preisupdates verändern diesen Vorgang nicht rückwirkend.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -100,7 +100,7 @@ export default async function InquiryDetailPage({
       ) : null}
       {resolvedSearchParams.status === "invalid" ? (
         <AdminNotice variant="error">
-          Status konnte nicht gespeichert werden. Bitte Eingaben pruefen und erneut versuchen.
+          Status konnte nicht gespeichert werden. Bitte Eingaben prüfen und erneut versuchen.
         </AdminNotice>
       ) : null}
 
@@ -156,11 +156,11 @@ export default async function InquiryDetailPage({
                 <h2 className="text-xl font-semibold text-slate-950">Objekt und Aufwand</h2>
                 <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
                   Zusammenfassung der Anfrage mit allen Angaben, die in die
-                  Kostenschaetzung eingeflossen sind.
+                  Kostenschätzung eingeflossen sind.
                 </p>
               </div>
               <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-3 text-sm">
-                <p className="text-[var(--foreground-soft)]">Kostenschaetzung</p>
+                <p className="text-[var(--foreground-soft)]">Kostenschätzung</p>
                 <p className="mt-1 text-lg font-semibold text-slate-950">
                   {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
                 </p>
@@ -183,8 +183,8 @@ export default async function InquiryDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-[var(--foreground-soft)]">Flaeche</dt>
-                <dd className="mt-1 font-medium text-slate-950">{inquiry.areaSqm} m2</dd>
+                <dt className="text-[var(--foreground-soft)]">Fläche</dt>
+                <dd className="mt-1 font-medium text-slate-950">{inquiry.areaSqm} m²</dd>
               </div>
               <div>
                 <dt className="text-[var(--foreground-soft)]">Zimmer</dt>
@@ -193,7 +193,7 @@ export default async function InquiryDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-[var(--foreground-soft)]">Fuellgrad</dt>
+                <dt className="text-[var(--foreground-soft)]">Füllgrad</dt>
                 <dd className="mt-1 font-medium text-slate-950">
                   {fillLevelLabels[inquiry.fillLevel]}
                 </dd>
@@ -233,10 +233,10 @@ export default async function InquiryDetailPage({
           </article>
 
           <article className="panel rounded-[2rem] p-6">
-            <h2 className="text-xl font-semibold text-slate-950">Kostenaufschluesselung</h2>
+            <h2 className="text-xl font-semibold text-slate-950">Kostenaufschlüsselung</h2>
             <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
               Diese Aufteilung stammt aus dem gespeicherten Kalkulations-Snapshot und
-              bleibt fuer diesen Vorgang unveraendert.
+              bleibt für diesen Vorgang unverändert.
             </p>
 
             <div className="mt-6 grid gap-3 rounded-3xl bg-[var(--surface-muted)] p-5 text-sm">
@@ -247,13 +247,13 @@ export default async function InquiryDetailPage({
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-[var(--foreground-soft)]">Effektive Flaeche</span>
+                <span className="text-[var(--foreground-soft)]">Effektive Fläche</span>
                 <span className="font-medium text-slate-950">
-                  {snapshot.estimate.effectiveArea} m2
+                  {snapshot.estimate.effectiveArea} m²
                 </span>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-[var(--foreground-soft)]">Kosten effektive Flaeche</span>
+                <span className="text-[var(--foreground-soft)]">Kosten effektive Fläche</span>
                 <span className="font-medium text-slate-950">
                   {formatCurrency(snapshot.estimate.effectiveAreaCost)}
                 </span>
@@ -323,7 +323,7 @@ export default async function InquiryDetailPage({
                       </li>
                     ))
                   ) : (
-                    <li>Keine Extras gewaehlt.</li>
+                    <li>Keine Extras gewählt.</li>
                   )}
                 </ul>
               </div>
@@ -344,7 +344,7 @@ export default async function InquiryDetailPage({
             </div>
             {manualReviewReasons.length > 0 ? (
               <div className="mt-6 rounded-3xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
-                <p className="font-semibold">Gruende fuer manuelle Pruefung</p>
+                <p className="font-semibold">Gründe für manuelle Prüfung</p>
                 <ul className="mt-2 space-y-1">
                   {manualReviewReasons.map((reason) => (
                     <li key={reason.code}>- {reason.message}</li>
@@ -357,7 +357,7 @@ export default async function InquiryDetailPage({
 
         <aside className="space-y-6">
           <section className="panel rounded-[2rem] p-6">
-            <h2 className="text-xl font-semibold text-slate-950">Status aendern</h2>
+            <h2 className="text-xl font-semibold text-slate-950">Status ändern</h2>
             <form action={updateInquiryStatusAction} className="mt-5 space-y-4">
               <input type="hidden" name="inquiryId" value={inquiry.id} />
               <label className="block">
@@ -391,8 +391,8 @@ export default async function InquiryDetailPage({
                 Detailansicht.
               </p>
               <p>
-                Ideal fuer Vorfuehrungen: Preisprofil anpassen, neue Anfrage anlegen und
-                diesen Snapshot mit dem naechsten Vorgang vergleichen.
+                Ideal für Vorführungen: Preisprofil anpassen, neue Anfrage anlegen und
+                diesen Snapshot mit dem nächsten Vorgang vergleichen.
               </p>
             </div>
           </section>

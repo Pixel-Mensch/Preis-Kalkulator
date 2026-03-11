@@ -51,11 +51,11 @@ export default async function AdminDashboardPage() {
         <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <h1 className="text-3xl font-semibold tracking-tight text-balance">
-              {companySettings?.companyName ?? "Entruempler Angebotsrechner"}
+              {companySettings?.companyName ?? "Entrümpler Angebotsrechner"}
             </h1>
             <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
-              Uebersicht ueber neue Anfragen, manuelle Pruefungen und den aktuellen
-              Arbeitsstand im Tagesgeschaeft.
+              Übersicht über neue Anfragen, manuelle Prüfungen und den aktuellen
+              Arbeitsstand im Tagesgeschäft.
             </p>
           </div>
           {companySettings ? (
@@ -73,7 +73,7 @@ export default async function AdminDashboardPage() {
           <p className="text-sm text-[var(--foreground-soft)]">Anfragen gesamt</p>
           <p className="mt-3 text-3xl font-semibold text-slate-950">{inquiryCount}</p>
           <p className="mt-2 text-xs leading-5 text-[var(--foreground-soft)]">
-            Alle im System gespeicherten Vorgaenge.
+            Alle im System gespeicherten Vorgänge.
           </p>
         </article>
         <article className="panel rounded-[1.6rem] p-5">
@@ -84,27 +84,27 @@ export default async function AdminDashboardPage() {
           </p>
         </article>
         <article className="panel rounded-[1.6rem] p-5">
-          <p className="text-sm text-[var(--foreground-soft)]">Manuelle Pruefung</p>
+          <p className="text-sm text-[var(--foreground-soft)]">Manuelle Prüfung</p>
           <p className="mt-3 text-3xl font-semibold text-slate-950">{manualReviewCount}</p>
           <p className="mt-2 text-xs leading-5 text-[var(--foreground-soft)]">
-            Faelle mit Risikohinweis oder hohem Abstimmungsbedarf.
+            Fälle mit Risikohinweis oder hohem Abstimmungsbedarf.
           </p>
         </article>
         <article className="panel rounded-[1.6rem] p-5">
           <p className="text-sm text-[var(--foreground-soft)]">Angebot gesendet</p>
           <p className="mt-3 text-3xl font-semibold text-slate-950">{offerSentCount}</p>
           <p className="mt-2 text-xs leading-5 text-[var(--foreground-soft)]">
-            Vorgaege, die bereits in die Angebotsphase gegangen sind.
+            Vorgänge, die bereits in die Angebotsphase gegangen sind.
           </p>
         </article>
       </section>
 
       {manualReviewCount > 0 ? (
         <section className="rounded-[2rem] border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
-          <p className="font-semibold">Manuelle Pruefung im Blick behalten</p>
+          <p className="font-semibold">Manuelle Prüfung im Blick behalten</p>
           <p className="mt-2">
-            Es liegen aktuell {manualReviewCount} Anfrage(n) mit besonderem Pruefbedarf vor.
-            Diese Faelle sollten bevorzugt gesichtet oder telefonisch abgestimmt werden.
+            Es liegen aktuell {manualReviewCount} Anfrage(n) mit besonderem Prüfbedarf vor.
+            Diese Fälle sollten bevorzugt gesichtet oder telefonisch abgestimmt werden.
           </p>
         </section>
       ) : null}
@@ -137,7 +137,7 @@ export default async function AdminDashboardPage() {
           <div className="mt-8 rounded-[1.8rem] border border-dashed border-[var(--line)] bg-[var(--surface-muted)] px-6 py-8 text-sm leading-6 text-[var(--foreground-soft)]">
             <p className="font-semibold text-slate-950">Noch keine Anfrage vorhanden</p>
             <p className="mt-2">
-              Oeffnen Sie den Rechner und schicken Sie eine Testanfrage ab, um den kompletten
+              Öffnen Sie den Rechner und schicken Sie eine Testanfrage ab, um den kompletten
               Ablauf mit Preisrahmen, PDF und Statusbearbeitung zu demonstrieren.
             </p>
           </div>
@@ -147,7 +147,7 @@ export default async function AdminDashboardPage() {
               <thead className="text-[var(--foreground-soft)]">
                 <tr>
                   <th className="pb-3 font-medium">Kunde</th>
-                  <th className="pb-3 font-medium">Schaetzung</th>
+                  <th className="pb-3 font-medium">Schätzung</th>
                   <th className="pb-3 font-medium">Status</th>
                   <th className="pb-3 font-medium">Eingang</th>
                 </tr>
@@ -163,7 +163,7 @@ export default async function AdminDashboardPage() {
                         {inquiry.customerName}
                       </Link>
                       <p className="text-xs text-[var(--foreground-soft)]">
-                        {objectTypeLabels[inquiry.objectType]} - {inquiry.postalCode}
+                        {objectTypeLabels[inquiry.objectType]} – {inquiry.postalCode}
                       </p>
                       {inquiry.manualReviewRequired ? (
                         <div className="mt-2">

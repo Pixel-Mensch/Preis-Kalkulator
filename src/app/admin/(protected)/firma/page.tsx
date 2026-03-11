@@ -34,7 +34,7 @@ export default async function CompanySettingsPage({
       {resolvedSearchParams.status === "invalid" ? (
         <div className="mt-6">
           <AdminNotice variant="error">
-            Einige Firmendaten sind ungueltig. Bitte die Eingaben pruefen und erneut speichern.
+            Einige Firmendaten sind ungültig. Bitte die Eingaben prüfen und erneut speichern.
           </AdminNotice>
         </div>
       ) : null}
@@ -101,7 +101,7 @@ export default async function CompanySettingsPage({
             <h2 className="text-lg font-semibold text-slate-950">Standort und Einsatzgebiet</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="block md:col-span-2">
-                <span className="mb-2 block text-sm font-semibold text-slate-950">Strasse</span>
+                <span className="mb-2 block text-sm font-semibold text-slate-950">Straße</span>
                 <input
                   name="street"
                   defaultValue={companySettings.street}
@@ -145,7 +145,7 @@ export default async function CompanySettingsPage({
             </p>
             <label className="mt-5 block">
               <span className="mb-2 block text-sm font-semibold text-slate-950">
-                Fussnote fuer Einschaetzung
+                Fußnote für Einschätzung
               </span>
               <textarea
                 name="estimateFootnote"
@@ -185,7 +185,7 @@ export default async function CompanySettingsPage({
             <h2 className="text-lg font-semibold text-slate-950">Branding-Hinweis</h2>
             <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
               Firmenname, Kontakt, Einsatzgebiet und Hinweistext werden zentral aus
-              diesen Einstellungen gezogen. Damit laesst sich die Installation spaeter
+              diesen Einstellungen gezogen. Damit lässt sich die Installation später
               pro Betrieb schnell anpassen.
             </p>
           </section>

@@ -135,7 +135,7 @@ export const objectTypeLabels: Record<ObjectType, string> = {
   CELLAR: "Keller",
   ATTIC: "Dachboden",
   GARAGE: "Garage",
-  OFFICE: "Buero",
+  OFFICE: "Büro",
   OTHER: "Sonstiges",
 };
 
@@ -161,12 +161,12 @@ export const walkDistanceLabels: Record<WalkDistance, string> = {
 };
 
 export const extraOptionLabels: Record<ExtraOption, string> = {
-  DISMANTLING: "Demontage von Moebeln",
-  KITCHEN_REMOVAL: "Kueche abbauen",
+  DISMANTLING: "Demontage von Möbeln",
+  KITCHEN_REMOVAL: "Küche abbauen",
   SWEPT_CLEAN: "Besenrein",
   EXPRESS: "Express-Termin",
   EXTRA_AREA: "Zusatzbereich",
-  BULKY_ITEMS: "Sperrige Einzelstuecke",
+  BULKY_ITEMS: "Sperrige Einzelstücke",
 };
 
 export const additionalAreaLabels: Record<AdditionalArea, string> = {
@@ -176,12 +176,12 @@ export const additionalAreaLabels: Record<AdditionalArea, string> = {
 };
 
 export const problemFlagLabels: Record<ProblemFlag, string> = {
-  HAZARDOUS_WASTE: "Sondermuell",
+  HAZARDOUS_WASTE: "Sondermüll",
   DANGEROUS_MATERIALS: "Gefahrstoffe",
   HOARDING: "Messi-Haushalt",
-  PEST_INFESTATION: "Schaedlingsbefall",
+  PEST_INFESTATION: "Schädlingsbefall",
   MOLD: "Schimmel",
-  FIRE_DAMAGE: "Brandrueckstaende",
+  FIRE_DAMAGE: "Brandrückstände",
 };
 
 export const inquiryStatusLabels: Record<InquiryStatus, string> = {

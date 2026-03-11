@@ -49,7 +49,7 @@ export default async function PricingSettingsPage({
         <p className="eyebrow text-[var(--accent-deep)]">Preise</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">Preiseinstellungen</h1>
         <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
-          Alle Werte wirken nur auf kuenftige Kalkulationen. Bestehende Anfragen behalten
+          Alle Werte wirken nur auf künftige Kalkulationen. Bestehende Anfragen behalten
           ihren gespeicherten Snapshot.
         </p>
       </div>
@@ -57,14 +57,14 @@ export default async function PricingSettingsPage({
       {resolvedSearchParams.status === "saved" ? (
         <div className="mt-6">
           <AdminNotice variant="success">
-            Preiseinstellungen gespeichert. Neue Werte gelten ab der naechsten Anfrage.
+            Preiseinstellungen gespeichert. Neue Werte gelten ab der nächsten Anfrage.
           </AdminNotice>
         </div>
       ) : null}
       {resolvedSearchParams.status === "invalid" ? (
         <div className="mt-6">
           <AdminNotice variant="error">
-            Einige Eingaben sind ungueltig. Bitte die Werte pruefen und erneut speichern.
+            Einige Eingaben sind ungültig. Bitte die Werte prüfen und erneut speichern.
           </AdminNotice>
         </div>
       ) : null}
@@ -73,16 +73,16 @@ export default async function PricingSettingsPage({
         <article className="rounded-[1.8rem] border border-[var(--line)] bg-[var(--surface-muted)] p-5">
           <h2 className="text-lg font-semibold text-slate-950">So wirkt die Kalkulation</h2>
           <ul className="mt-4 space-y-2 text-sm leading-6 text-[var(--foreground-soft)]">
-            <li>- Objektbasispreis plus effektive Flaeche bilden den Grundwert.</li>
-            <li>- Etage, Aufzug, Laufweg, Extras und Anfahrtszone ergaenzen den Aufwand.</li>
+            <li>- Objektbasispreis plus effektive Fläche bilden den Grundwert.</li>
+            <li>- Etage, Aufzug, Laufweg, Extras und Anfahrtszone ergänzen den Aufwand.</li>
             <li>- Mindestauftragswert und Preisspanne werden erst zum Schluss angewendet.</li>
           </ul>
         </article>
         <article className="rounded-[1.8rem] border border-[var(--line)] bg-white p-5">
-          <h2 className="text-lg font-semibold text-slate-950">Wichtig fuer Demo und Betrieb</h2>
+          <h2 className="text-lg font-semibold text-slate-950">Wichtig für Demo und Betrieb</h2>
           <p className="mt-4 text-sm leading-6 text-[var(--foreground-soft)]">
-            Neue Werte greifen nur fuer kuenftige Anfragen. Bereits gespeicherte
-            Vorgaenge behalten ihren Kalkulations-Snapshot und bleiben dadurch
+            Neue Werte greifen nur für künftige Anfragen. Bereits gespeicherte
+            Vorgänge behalten ihren Kalkulations-Snapshot und bleiben dadurch
             nachvollziehbar.
           </p>
         </article>
@@ -113,7 +113,7 @@ export default async function PricingSettingsPage({
           </label>
           <label className="block">
             <span className="mb-2 block text-sm font-semibold text-slate-950">
-              Basisrate pro effektivem m2
+              Basisrate pro effektivem m²
             </span>
             <input
               name="baseRatePerEffectiveSqm"
@@ -123,8 +123,8 @@ export default async function PricingSettingsPage({
             />
           </label>
           <label className="block">
-            <span className="mb-2 block text-sm font-semibold text-slate-950">
-              Aufzugsfaktor fuer Etagenaufschlag
+              <span className="mb-2 block text-sm font-semibold text-slate-950">
+              Aufzugsfaktor für Etagenaufschlag
             </span>
             <input
               name="elevatorReductionFactor"
@@ -181,7 +181,7 @@ export default async function PricingSettingsPage({
           </section>
 
           <section className="rounded-[1.8rem] bg-[var(--surface-muted)] p-5">
-            <h2 className="text-lg font-semibold text-slate-950">Fuellgradfaktoren</h2>
+            <h2 className="text-lg font-semibold text-slate-950">Füllgradfaktoren</h2>
             <div className="mt-4 space-y-3">
               {fillLevels.map((fillLevel) => {
                 const currentValue = pricingProfile.fillLevelFactors.find(
@@ -205,7 +205,7 @@ export default async function PricingSettingsPage({
           </section>
 
           <section className="rounded-[1.8rem] bg-[var(--surface-muted)] p-5">
-            <h2 className="text-lg font-semibold text-slate-950">Etagenaufschlaege</h2>
+            <h2 className="text-lg font-semibold text-slate-950">Etagenaufschläge</h2>
             <div className="mt-4 space-y-3">
               {floorLevels.map((floorLevel) => {
                 const currentValue = pricingProfile.floorSurcharges.find(
@@ -307,7 +307,7 @@ export default async function PricingSettingsPage({
                         />
                       </div>
                       <p className="mt-3 text-xs leading-5 text-[var(--foreground-soft)]">
-                        Zone {travelZone.zoneCode}: Bezeichnung, PLZ-Praefixe
+                        Zone {travelZone.zoneCode}: Bezeichnung, PLZ-Präfixe
                         kommagetrennt und Aufschlag in Euro.
                       </p>
                     </div>

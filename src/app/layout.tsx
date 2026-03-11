@@ -14,9 +14,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Entruempler Angebotsrechner V1",
+  title: "Entrümpler Angebotsrechner V1",
   description:
-    "Mobiler Entruempelungsrechner mit unverbindlicher Kostenschaetzung, Anfrageflow und Adminbereich.",
+    "Mobiler Entrümpelungsrechner mit unverbindlicher Kostenschätzung, Anfrageflow und Adminbereich.",
 };
 
 export default function RootLayout({

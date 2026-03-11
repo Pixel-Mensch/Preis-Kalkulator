@@ -5,7 +5,7 @@ import { parsePricingSettingsFormData, publicInquirySchema } from "@/lib/validat
 function createValidPricingFormData() {
   const formData = new FormData();
 
-  formData.set("profileName", "Standard Entruempelung V1");
+  formData.set("profileName", "Standard Entrümpelung V1");
   formData.set("minimumOrderValue", "250");
   formData.set("baseRatePerEffectiveSqm", "14");
   formData.set("minFactor", "0.92");

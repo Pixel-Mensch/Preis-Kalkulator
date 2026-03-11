@@ -14,7 +14,7 @@ export function getManualReviewReasons(
   if (input.areaSqm > 250) {
     reasons.push({
       code: "LARGE_AREA",
-      message: "Flaeche ueber 250 m2",
+      message: "Fläche über 250 m²",
     });
   }
 
@@ -25,7 +25,7 @@ export function getManualReviewReasons(
   ) {
     reasons.push({
       code: "EXTREME_ACCESS",
-      message: "Extremer Fuellgrad in hoher Etage ohne Aufzug",
+      message: "Extremer Füllgrad in hoher Etage ohne Aufzug",
     });
   }
 
@@ -36,14 +36,14 @@ export function getManualReviewReasons(
   ) {
     reasons.push({
       code: "LARGE_HOUSE",
-      message: "Grosses Haus mit hohem Fuellgrad",
+      message: "Großes Haus mit hohem Füllgrad",
     });
   }
 
   if (estimate.travelZoneCode === "D" && input.areaSqm > 150) {
     reasons.push({
       code: "LONG_DISTANCE_LARGE_JOB",
-      message: "Grosses Objekt im Fernbereich",
+      message: "Großes Objekt im Fernbereich",
     });
   }
 

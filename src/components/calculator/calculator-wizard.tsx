@@ -64,12 +64,12 @@ const steps = [
   {
     title: "Objekt und Aufwand",
     description:
-      "Hauptobjekt, Zusatzbereiche und die wichtigsten Angaben fuer die Ersteinschaetzung.",
+      "Hauptobjekt, Zusatzbereiche und die wichtigsten Angaben für die Ersteinschätzung.",
   },
   {
     title: "Kontakt und Anfrage",
     description:
-      "Zusammenfassung pruefen und die unverbindliche Anfrage in einem Schritt absenden.",
+      "Zusammenfassung prüfen und die unverbindliche Anfrage in einem Schritt absenden.",
   },
 ] as const;
 
@@ -180,7 +180,7 @@ export function CalculatorWizard({
     setErrorMessage(null);
 
     if (!payload || !payload.name || !payload.phone || !payload.email) {
-      setErrorMessage("Bitte vervollstaendige Ihre Kontaktdaten.");
+      setErrorMessage("Bitte vervollständigen Sie Ihre Kontaktdaten.");
       return;
     }
 
@@ -231,7 +231,7 @@ export function CalculatorWizard({
               </h1>
               <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)] sm:text-base">
                 In zwei kurzen Schritten erhalten Sie eine unverbindliche
-                Kostenschaetzung und senden uns gleichzeitig eine strukturierte Anfrage.
+                Kostenschätzung und senden uns gleichzeitig eine strukturierte Anfrage.
               </p>
             </div>
 
@@ -316,13 +316,13 @@ export function CalculatorWizard({
                     ))}
                   </select>
                   <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
-                    Bitte den Bereich waehlen, der den Hauptaufwand bestimmt.
+                    Bitte den Bereich wählen, der den Hauptaufwand bestimmt.
                   </span>
                 </label>
 
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-950">
-                    Zusaetzliche Bereiche
+                    Zusätzliche Bereiche
                   </span>
                   <select
                     className={getSelectClassName()}
@@ -342,7 +342,7 @@ export function CalculatorWizard({
                       setAdditionalAreaDraft("");
                     }}
                   >
-                    <option value="">Zusatzbereich auswaehlen</option>
+                    <option value="">Zusatzbereich auswählen</option>
                     {additionalAreaOptions
                       .filter((value) => value !== formState.objectType)
                       .map((value) => (
@@ -378,16 +378,10 @@ export function CalculatorWizard({
                 </div>
               ) : null}
 
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
-                Bitte die Gesamtflaeche inklusive aller Zusatzbereiche angeben.
-                Ein Haus mit Keller und Dachboden bleibt also ein Hauptobjekt mit
-                Zusatzbereichen, nicht mehrere getrennte Hauptobjekte.
-              </div>
-
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-950">
-                    Gesamtflaeche in m2
+                    Gesamtfläche in m²
                   </span>
                   <input
                     inputMode="numeric"
@@ -423,7 +417,7 @@ export function CalculatorWizard({
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-950">
-                    Fuellgrad
+                    Füllgrad
                   </span>
                   <select
                     className={getSelectClassName()}
@@ -526,7 +520,7 @@ export function CalculatorWizard({
                       setExtraOptionDraft("");
                     }}
                   >
-                    <option value="">Extra hinzufuegen</option>
+                    <option value="">Extra hinzufügen</option>
                     {extraOptions.map((value) => (
                       <option key={value} value={value}>
                         {extraOptionLabels[value]}
@@ -537,7 +531,7 @@ export function CalculatorWizard({
 
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-slate-950">
-                    Sonderfaelle
+                    Sonderfälle
                   </span>
                   <select
                     className={getSelectClassName()}
@@ -557,7 +551,7 @@ export function CalculatorWizard({
                       setProblemFlagDraft("");
                     }}
                   >
-                    <option value="">Sonderfall hinzufuegen</option>
+                    <option value="">Sonderfall hinzufügen</option>
                     {problemFlags.map((value) => (
                       <option key={value} value={value}>
                         {problemFlagLabels[value]}
@@ -569,7 +563,7 @@ export function CalculatorWizard({
 
               {selectedExtraLabels.length > 0 ? (
                 <div>
-                  <p className="text-sm font-semibold text-slate-950">Gewaehlte Extras</p>
+                  <p className="text-sm font-semibold text-slate-950">Gewählte Extras</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {formState.extraOptions.map((value) => (
                       <button
@@ -594,7 +588,7 @@ export function CalculatorWizard({
               {selectedProblemFlagLabels.length > 0 ? (
                 <div>
                   <p className="text-sm font-semibold text-slate-950">
-                    Angegebene Sonderfaelle
+                    Angegebene Sonderfälle
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {formState.problemFlags.map((value) => (
@@ -658,7 +652,7 @@ export function CalculatorWizard({
           {stepIndex === 1 ? (
             <div className="space-y-6">
               <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] p-5">
-                <p className="text-sm font-semibold text-slate-950">Ihre Anfrage im Ueberblick</p>
+                <p className="text-sm font-semibold text-slate-950">Ihre Anfrage im Überblick</p>
                 <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
                   <div>
                     <p className="text-[var(--foreground-soft)]">Hauptobjekt</p>
@@ -667,7 +661,7 @@ export function CalculatorWizard({
                     </p>
                   </div>
                   <div>
-                    <p className="text-[var(--foreground-soft)]">Zusaetzliche Bereiche</p>
+                    <p className="text-[var(--foreground-soft)]">Zusätzliche Bereiche</p>
                     <p className="font-medium text-slate-950">
                       {selectedAdditionalAreaLabels.length > 0
                         ? selectedAdditionalAreaLabels.join(", ")
@@ -675,9 +669,9 @@ export function CalculatorWizard({
                     </p>
                   </div>
                   <div>
-                    <p className="text-[var(--foreground-soft)]">Gesamtflaeche</p>
+                    <p className="text-[var(--foreground-soft)]">Gesamtfläche</p>
                     <p className="font-medium text-slate-950">
-                      {formState.areaSqm ? `${formState.areaSqm} m2` : "Noch nicht angegeben"}
+                      {formState.areaSqm ? `${formState.areaSqm} m²` : "Noch nicht angegeben"}
                     </p>
                   </div>
                   <div>
@@ -721,7 +715,7 @@ export function CalculatorWizard({
                   </span>
                   <input
                     className={getSelectClassName()}
-                    placeholder="Telefon fuer Rueckfragen"
+                    placeholder="Telefon für Rückfragen"
                     value={formState.phone}
                     onChange={(event) =>
                       setFormState((current) => ({ ...current, phone: event.target.value }))
@@ -754,14 +748,14 @@ export function CalculatorWizard({
                   onChange={(event) =>
                     setFormState((current) => ({ ...current, message: event.target.value }))
                   }
-                  placeholder="Zugang, Parkmoeglichkeit, besondere Hinweise ..."
+                  placeholder="Zugang, Parkmöglichkeit, besondere Hinweise ..."
                 />
               </label>
 
               <div className="rounded-3xl border border-[var(--line)] bg-white px-5 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
                 Mit dem Absenden senden Sie eine unverbindliche Anfrage. Die
-                Kostenschaetzung dient der ersten Orientierung und ersetzt bei
-                Sonderfaellen keine persoenliche Pruefung.
+                Kostenschätzung dient der ersten Orientierung und ersetzt bei
+                Sonderfällen keine persönliche Prüfung.
               </div>
 
               <label className="hidden">
@@ -799,7 +793,7 @@ export function CalculatorWizard({
                 disabled={stepIndex === 0}
                 className="inline-flex h-12 items-center justify-center rounded-full border border-[var(--line)] px-6 text-sm font-semibold text-slate-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Zurueck
+                Zurück
               </button>
 
               {stepIndex < steps.length - 1 ? (
@@ -808,7 +802,7 @@ export function CalculatorWizard({
                   onClick={() => {
                     if (!canContinue(stepIndex, formState)) {
                       setErrorMessage(
-                        "Bitte geben Sie mindestens Hauptobjekt, Gesamtflaeche und eine gueltige PLZ an.",
+                        "Bitte geben Sie mindestens Hauptobjekt, Gesamtfläche und eine gültige PLZ an.",
                       );
                       return;
                     }
@@ -837,7 +831,7 @@ export function CalculatorWizard({
 
       <aside className="space-y-5 lg:sticky lg:top-24">
         <div className="panel rounded-[2rem] p-6">
-          <p className="eyebrow text-[var(--accent-deep)]">Live-Einschaetzung</p>
+          <p className="eyebrow text-[var(--accent-deep)]">Live-Einschätzung</p>
           {estimate ? (
             <>
               <div className="mt-4 rounded-3xl bg-[var(--surface-muted)] px-5 py-5">
@@ -846,7 +840,7 @@ export function CalculatorWizard({
                   {formatCurrency(estimate.rangeMin)} bis {formatCurrency(estimate.rangeMax)}
                 </p>
                 <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
-                  Unverbindliche Ersteinschaetzung auf Basis Ihrer aktuellen Angaben.
+                  Unverbindliche Ersteinschätzung auf Basis Ihrer aktuellen Angaben.
                 </p>
               </div>
 
@@ -866,8 +860,8 @@ export function CalculatorWizard({
                   </dd>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <dt className="text-[var(--foreground-soft)]">Effektive Flaeche</dt>
-                  <dd className="font-medium text-slate-950">{estimate.effectiveArea} m2</dd>
+                  <dt className="text-[var(--foreground-soft)]">Effektive Fläche</dt>
+                  <dd className="font-medium text-slate-950">{estimate.effectiveArea} m²</dd>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <dt className="text-[var(--foreground-soft)]">Anfahrtszone</dt>
@@ -880,27 +874,27 @@ export function CalculatorWizard({
               </dl>
 
               <div className="mt-5 rounded-3xl border border-[var(--line)] bg-white px-4 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
-                Zusatzbereiche werden ueber die angegebene Gesamtflaeche und die
-                strukturierte Anfrage mitberuecksichtigt.
+                Zusatzbereiche werden über die angegebene Gesamtfläche und die
+                strukturierte Anfrage mitberücksichtigt.
               </div>
               {manualReviewReasons.length > 0 ? (
                 <div className="mt-5 rounded-3xl border border-amber-300 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
-                  <p className="font-semibold">Persoenliche Pruefung vorgesehen</p>
+                  <p className="font-semibold">Persönliche Prüfung vorgesehen</p>
                   <ul className="mt-2 space-y-1">
                     {manualReviewReasons.map((reason) => (
                       <li key={reason.code}>- {reason.message}</li>
                     ))}
                   </ul>
                   <p className="mt-3">
-                    Sie sehen weiterhin einen Preisrahmen. Fuer die finale
-                    Einschaetzung melden wir uns nach kurzer Pruefung persoenlich.
+                    Sie sehen weiterhin einen Preisrahmen. Für die finale
+                    Einschätzung melden wir uns nach kurzer Prüfung persönlich.
                   </p>
                 </div>
               ) : null}
             </>
           ) : (
             <div className="mt-4 rounded-3xl bg-[var(--surface-muted)] px-5 py-5 text-sm leading-6 text-[var(--foreground-soft)]">
-              Bitte Hauptobjekt, Gesamtflaeche und PLZ angeben. Dann erscheint direkt
+              Bitte Hauptobjekt, Gesamtfläche und PLZ angeben. Dann erscheint direkt
               eine erste Preisspanne.
             </div>
           )}

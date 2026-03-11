@@ -25,22 +25,22 @@ const pricingProfileId = "default-pricing-profile";
 
 const companyDefaults = {
   id: companySettingsId,
-  companyName: "Klarraum Entruempelung Ruhr",
+  companyName: "Klarraum Entrümpelung Ruhr",
   contactEmail: "demo@klarraum-ruhr.de",
   contactPhone: "+49 201 987650",
   website: "https://www.klarraum-ruhr.de",
-  street: "Rellinghauser Strasse 18",
+  street: "Rellinghauser Straße 18",
   postalCode: "45128",
   city: "Essen",
-  serviceAreaNote: "Essen, Muelheim, Oberhausen, Duisburg und das westliche Ruhrgebiet",
+  serviceAreaNote: "Essen, Mülheim, Oberhausen, Duisburg und das westliche Ruhrgebiet",
   estimateFootnote:
-    "Die angezeigte Kostenschaetzung ist unverbindlich und dient der ersten Orientierung. Nach Sichtung vor Ort oder Ruecksprache kann der Aufwand abweichen.",
+    "Die angezeigte Kostenschätzung ist unverbindlich und dient der ersten Orientierung. Nach Sichtung vor Ort oder Rücksprache kann der Aufwand abweichen.",
   supportHours: "Mo-Fr 08:00-18:00, Sa 09:00-13:00",
 } as const;
 
 const pricingProfileDefaults = {
   id: pricingProfileId,
-  name: "Standard Entruempelung Ruhrgebiet",
+  name: "Standard Entrümpelung Ruhrgebiet",
   isActive: true,
   minimumOrderValue: 250,
   baseRatePerEffectiveSqm: 14,
@@ -149,12 +149,12 @@ const demoInquiries: DemoInquirySeed[] = [
       problemFlags: [],
       postalCode: "45131",
       desiredDate: "2026-03-14",
-      name: "Sabine Krueger",
+      name: "Sabine Krüger",
       phone: "+49 173 2211044",
       email: "sabine.krueger@example.de",
       website: undefined,
       message:
-        "Die Wohnung ist bereits gekuendigt. Zugang ueber den Innenhof, Parken kurz vor dem Haus moeglich.",
+        "Die Wohnung ist bereits gekündigt. Zugang über den Innenhof, Parken kurz vor dem Haus möglich.",
     },
   },
   {
@@ -179,7 +179,7 @@ const demoInquiries: DemoInquirySeed[] = [
       email: "thomas.neumann@example.de",
       website: undefined,
       message:
-        "Hausverkauf steht an. Die Kueche soll komplett entfernt werden, im Keller stehen noch Werkbaenke.",
+        "Hausverkauf steht an. Die Küche soll komplett entfernt werden, im Keller stehen noch Werkbänke.",
     },
   },
   {
@@ -204,7 +204,7 @@ const demoInquiries: DemoInquirySeed[] = [
       email: "aylin.demir@example.de",
       website: undefined,
       message:
-        "Bitte zunaechst telefonisch abstimmen. Im Schlafzimmer gibt es Schimmel an einer Aussenwand.",
+        "Bitte zunächst telefonisch abstimmen. Im Schlafzimmer gibt es Schimmel an einer Außenwand.",
     },
   },
   {
@@ -229,7 +229,7 @@ const demoInquiries: DemoInquirySeed[] = [
       email: "m.hoffmann@example.de",
       website: undefined,
       message:
-        "Zur Garage gehoert noch ein kleiner Nebenraum. Einige schwere Metallregale muessen mit raus.",
+        "Zur Garage gehört noch ein kleiner Nebenraum. Einige schwere Metallregale müssen mit raus.",
     },
   },
 ];

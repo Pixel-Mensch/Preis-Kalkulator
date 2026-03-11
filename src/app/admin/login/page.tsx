@@ -26,7 +26,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
         <div className="panel w-full rounded-[2rem] p-8">
           <p className="eyebrow text-[var(--accent-deep)]">Verwaltung</p>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-balance">
-            Geschuetzter Bereich
+            Geschützter Bereich
           </h1>
           <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
             Bitte mit Administrator-Zugang anmelden.
@@ -34,7 +34,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
 
           {hasError ? (
             <div className="mt-6 rounded-3xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
-              Die Zugangsdaten waren ungueltig.
+              Die Zugangsdaten waren ungültig.
             </div>
           ) : null}
 

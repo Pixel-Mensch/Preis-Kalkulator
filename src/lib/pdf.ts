@@ -91,8 +91,8 @@ export async function generateInquiryPdf({
   drawLine(`Anfrage ${inquiry.publicId}`, { bold: true, size: 16, gap: 20 });
   drawLine(
     inquiry.manualReviewRequired
-      ? "Unverbindliche Einschaetzung - manuelle Pruefung empfohlen"
-      : "Unverbindliche Einschaetzung",
+      ? "Unverbindliche Einschätzung - manuelle Prüfung empfohlen"
+      : "Unverbindliche Einschätzung",
     { bold: true, gap: 22 },
   );
 
@@ -104,7 +104,7 @@ export async function generateInquiryPdf({
   drawLine("Objektdaten", { bold: true, gap: 18 });
   drawLine(`Objektart: ${objectTypeLabels[snapshot.input.objectType]}`);
   drawLine(
-    `Zusaetzliche Bereiche: ${
+    `Zusätzliche Bereiche: ${
       (snapshot.input.additionalAreas ?? []).length > 0
         ? (snapshot.input.additionalAreas ?? [])
             .map((value) => additionalAreaLabels[value])
@@ -112,24 +112,24 @@ export async function generateInquiryPdf({
         : "Keine"
     }`,
   );
-  drawLine(`Flaeche: ${snapshot.input.areaSqm} m2`);
-  drawLine(`Fuellgrad: ${fillLevelLabels[snapshot.input.fillLevel]}`);
+  drawLine(`Fläche: ${snapshot.input.areaSqm} m²`);
+  drawLine(`Füllgrad: ${fillLevelLabels[snapshot.input.fillLevel]}`);
   drawLine(`Etage: ${floorLevelLabels[snapshot.input.floorLevel]}`);
   drawLine(`Aufzug: ${snapshot.input.hasElevator ? "Ja" : "Nein"}`);
   drawLine(`Laufweg: ${walkDistanceLabels[snapshot.input.walkDistance]}`);
   drawLine(`Zone: ${snapshot.estimate.travelZoneLabel}`, { gap: 22 });
 
-  drawLine("Preisuebersicht", { bold: true, gap: 18 });
+  drawLine("Preisübersicht", { bold: true, gap: 18 });
   drawLine(
-    `Kostenschaetzung: ${formatCurrency(snapshot.estimate.rangeMin)} bis ${formatCurrency(snapshot.estimate.rangeMax)}`,
+    `Kostenschätzung: ${formatCurrency(snapshot.estimate.rangeMin)} bis ${formatCurrency(snapshot.estimate.rangeMax)}`,
   );
   drawLine(`Objektbasis: ${formatCurrency(snapshot.estimate.basePrice)}`);
-  drawLine(`Effektive Flaeche: ${snapshot.estimate.effectiveArea} m2`);
+  drawLine(`Effektive Fläche: ${snapshot.estimate.effectiveArea} m²`);
   drawLine(`Zwischensumme: ${formatCurrency(snapshot.estimate.subtotal)}`, { gap: 22 });
 
   drawLine("Extras", { bold: true, gap: 18 });
   if (snapshot.input.extraOptions.length === 0) {
-    drawLine("Keine Extras gewaehlt.");
+    drawLine("Keine Extras gewählt.");
   } else {
     for (const extraOption of snapshot.input.extraOptions) {
       drawLine(`- ${extraOptionLabels[extraOption]}`);
@@ -137,9 +137,9 @@ export async function generateInquiryPdf({
   }
 
   y -= 8;
-  drawLine("Sonderfaelle", { bold: true, gap: 18 });
+  drawLine("Sonderfälle", { bold: true, gap: 18 });
   if (snapshot.input.problemFlags.length === 0) {
-    drawLine("Keine Sonderfaelle angegeben.");
+    drawLine("Keine Sonderfälle angegeben.");
   } else {
     for (const problemFlag of snapshot.input.problemFlags) {
       drawLine(`- ${problemFlagLabels[problemFlag]}`);
@@ -148,7 +148,7 @@ export async function generateInquiryPdf({
 
   if (snapshot.manualReviewReasons.length > 0) {
     y -= 8;
-    drawLine("Gruende fuer manuelle Pruefung", { bold: true, gap: 18 });
+    drawLine("Gründe für manuelle Prüfung", { bold: true, gap: 18 });
     for (const reason of snapshot.manualReviewReasons) {
       drawLine(`- ${reason.message}`);
     }

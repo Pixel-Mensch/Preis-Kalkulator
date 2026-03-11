@@ -18,14 +18,14 @@ export default async function InquiryListPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <p className="eyebrow text-[var(--accent-deep)]">Anfragen</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">Lead-Uebersicht</h1>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight">Lead-Übersicht</h1>
           <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
             Alle eingegangenen Anfragen mit Kontakt, Preisrahmen und Hinweis auf
-            manuelle Pruefung.
+            manuelle Prüfung.
           </p>
         </div>
         <p className="text-sm text-[var(--foreground-soft)]">
-          {inquiries.length} Eintraege insgesamt
+          {inquiries.length} Einträge insgesamt
         </p>
       </div>
 
@@ -33,8 +33,8 @@ export default async function InquiryListPage() {
         <div className="mt-8 rounded-[1.8rem] border border-dashed border-[var(--line)] bg-[var(--surface-muted)] px-6 py-8 text-sm leading-6 text-[var(--foreground-soft)]">
           <p className="font-semibold text-slate-950">Noch keine Anfragen gespeichert</p>
           <p className="mt-2">
-            Fuer die erste Demo koennen Sie den Rechner oeffnen und eine Beispielanfrage
-            absenden. Danach erscheint hier die komplette Lead-Uebersicht.
+            Für die erste Demo können Sie den Rechner öffnen und eine Beispielanfrage
+            absenden. Danach erscheint hier die komplette Lead-Übersicht.
           </p>
           <div className="mt-4">
             <Link
@@ -52,7 +52,7 @@ export default async function InquiryListPage() {
               <tr>
                 <th className="pb-3 font-medium">Kunde</th>
                 <th className="pb-3 font-medium">Objekt</th>
-                <th className="pb-3 font-medium">Schaetzung</th>
+                <th className="pb-3 font-medium">Schätzung</th>
                 <th className="pb-3 font-medium">Status</th>
                 <th className="pb-3 font-medium">Eingegangen</th>
               </tr>
@@ -77,7 +77,7 @@ export default async function InquiryListPage() {
                   <td className="py-4 text-slate-950">
                     <p className="font-medium">{objectTypeLabels[inquiry.objectType]}</p>
                     <p className="text-xs text-[var(--foreground-soft)]">
-                      Vorgang {inquiry.publicId} - {inquiry.postalCode}
+                      Vorgang {inquiry.publicId} – {inquiry.postalCode}
                     </p>
                   </td>
                   <td className="py-4 font-medium text-slate-950">
