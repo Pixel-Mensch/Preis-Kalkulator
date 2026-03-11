@@ -162,6 +162,10 @@ export default async function AdminDashboardPage() {
                 Öffnen Sie den Rechner und schicken Sie eine Testanfrage ab, um den kompletten
                 Ablauf mit Preisrahmen, PDF und Statusbearbeitung zu demonstrieren.
               </p>
+              <p className="mt-2 text-xs leading-5">
+                Für eine saubere Erstvorführung eignet sich zuerst ein normaler Wohnungsfall
+                ohne Sonderfälle.
+              </p>
             </div>
           ) : (
             <>

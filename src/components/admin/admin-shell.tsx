@@ -79,9 +79,14 @@ export function AdminShell({ adminName, children }: AdminShellProps) {
 
           <div className="mt-6 rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
             <p className="font-semibold text-slate-950">Für Live-Demos</p>
-            <p className="mt-2">
-              Zeigen Sie zuerst das Dashboard, dann eine Anfrage im Detail und zum Schluss
-              die Preiseinstellungen.
+            <ol className="mt-2 space-y-2">
+              <li>1. Erst Dashboard und Überblick zeigen</li>
+              <li>2. Dann eine Standard-Anfrage im Detail öffnen</li>
+              <li>3. Preiseinstellungen nur kurz zum Schluss zeigen</li>
+            </ol>
+            <p className="mt-3 text-xs leading-5">
+              Tipp: Im Gespräch zuerst einen normalen Wohnungsfall zeigen und den
+              Sonderfall mit manueller Prüfung erst im zweiten Schritt.
             </p>
           </div>
 
