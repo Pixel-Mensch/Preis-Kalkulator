@@ -19,6 +19,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
   }
 
   const hasError = resolvedSearchParams.error === "invalid";
+  const isRateLimited = resolvedSearchParams.error === "rate_limited";
 
   return (
     <main className="app-shell">
@@ -35,6 +36,11 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
           {hasError ? (
             <div className="mt-6 rounded-3xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
               Die Zugangsdaten waren ungültig.
+            </div>
+          ) : null}
+          {isRateLimited ? (
+            <div className="mt-6 rounded-3xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              Zu viele Anmeldeversuche in kurzer Zeit. Bitte in einigen Minuten erneut versuchen.
             </div>
           ) : null}
 

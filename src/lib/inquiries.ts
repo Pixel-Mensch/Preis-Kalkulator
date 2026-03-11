@@ -20,3 +20,15 @@ export function serializeInquirySnapshot(snapshot: InquiryCalculationSnapshot) {
 export function parseJsonValue<T>(value: string) {
   return JSON.parse(value) as T;
 }
+
+export function parseJsonValueSafe<T>(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return null;
+  }
+}

@@ -1,6 +1,7 @@
 import { updateCompanySettingsAction } from "@/app/admin/(protected)/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
-import { getCompanySettings } from "@/lib/company";
+import { ConfigurationState } from "@/components/configuration-state";
+import { getCompanySettingsState } from "@/lib/company";
 
 type CompanySettingsPageProps = {
   searchParams: Promise<{
@@ -12,7 +13,17 @@ export default async function CompanySettingsPage({
   searchParams,
 }: CompanySettingsPageProps) {
   const resolvedSearchParams = await searchParams;
-  const companySettings = await getCompanySettings();
+  const { companySettings, isConfigured } = await getCompanySettingsState();
+
+  if (!isConfigured) {
+    return (
+      <ConfigurationState
+        title="Firmendaten fehlen noch"
+        description="Für Landingpage, Rechner, PDF und E-Mail-Kontakt werden zentrale Firmendaten benötigt. Aktuell ist noch kein vollständiger Datensatz vorhanden."
+        actionHint="Die Demo-Daten erneut einspielen oder einen CompanySettings-Datensatz anlegen. Erst danach sollte die öffentliche Demo verwendet werden."
+      />
+    );
+  }
 
   return (
     <section className="panel rounded-[2rem] p-6 sm:p-8">

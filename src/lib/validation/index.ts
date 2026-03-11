@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { isValidDateOnlyString } from "@/lib/date";
 import {
   additionalAreaOptions,
   extraOptions,
@@ -57,6 +58,10 @@ function requiredTextField(minLength: number, maxLength: number) {
   return z.string().trim().min(minLength).max(maxLength);
 }
 
+function emailField() {
+  return z.string().trim().toLowerCase().email();
+}
+
 function parseField<Value>(
   schema: z.ZodType<Value>,
   value: FormDataEntryValue | null,
@@ -80,7 +85,7 @@ function optionalDateField() {
       const trimmed = value.trim();
       return trimmed.length > 0 ? trimmed : undefined;
     })
-    .refine((value) => !value || /^\d{4}-\d{2}-\d{2}$/.test(value), {
+    .refine((value) => !value || isValidDateOnlyString(value), {
       message: "Invalid date format.",
     });
 }
@@ -101,7 +106,7 @@ export const publicInquirySchema = z
     desiredDate: optionalDateField(),
     name: z.string().trim().min(2).max(120),
     phone: z.string().trim().min(6).max(40),
-    email: z.email(),
+    email: emailField(),
     message: optionalTextField(2000),
     website: optionalTextField(120),
   })
@@ -122,6 +127,14 @@ export const publicInquirySchema = z
       });
     }
 
+    if (!hasUniqueValues(value.problemFlags)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["problemFlags"],
+        message: "Problem flags must be unique.",
+      });
+    }
+
     const mainObjectAsAdditionalArea = value.objectType as AdditionalArea;
     if (value.additionalAreas.includes(mainObjectAsAdditionalArea)) {
       ctx.addIssue({
@@ -133,13 +146,13 @@ export const publicInquirySchema = z
   });
 
 export const loginSchema = z.object({
-  email: z.email(),
+  email: emailField(),
   password: z.string().min(8).max(200),
 });
 
 export const companySettingsSchema = z.object({
   companyName: z.string().trim().min(2).max(120),
-  contactEmail: z.email(),
+  contactEmail: emailField(),
   contactPhone: z.string().trim().min(6).max(40),
   website: optionalTextField(120),
   street: z.string().trim().min(2).max(120),

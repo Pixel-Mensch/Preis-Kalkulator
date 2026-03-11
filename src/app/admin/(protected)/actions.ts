@@ -38,7 +38,7 @@ export async function updateInquiryStatusAction(formData: FormData) {
     redirect(`/admin/anfragen/${inquiryId}?status=invalid`);
   }
 
-  await prisma.inquiry.update({
+  const result = await prisma.inquiry.updateMany({
     where: {
       id: inquiryId,
     },
@@ -46,6 +46,10 @@ export async function updateInquiryStatusAction(formData: FormData) {
       status,
     },
   });
+
+  if (result.count === 0) {
+    redirect("/admin/anfragen?status=invalid");
+  }
 
   revalidatePath("/admin");
   revalidatePath("/admin/anfragen");
@@ -74,15 +78,20 @@ export async function updateCompanySettingsAction(formData: FormData) {
     redirect("/admin/firma?status=invalid");
   }
 
-  await prisma.companySettings.update({
+  const result = await prisma.companySettings.updateMany({
     where: {
       id: companySettingsId,
     },
     data: parsedPayload.data,
   });
 
+  if (result.count === 0) {
+    redirect("/admin/firma?status=invalid");
+  }
+
   revalidatePath("/");
   revalidatePath("/rechner");
+  revalidatePath("/admin");
   revalidatePath("/admin/firma");
   redirect("/admin/firma?status=saved");
 }
@@ -99,109 +108,117 @@ export async function updatePricingSettingsAction(formData: FormData) {
 
   const pricingSettings = parsedPayload.data;
 
-  await prisma.$transaction(async (transaction) => {
-    await transaction.pricingProfile.update({
-      where: {
-        id: pricingProfileId,
-      },
-      data: {
-        name: pricingSettings.profileName,
-        minimumOrderValue: pricingSettings.minimumOrderValue,
-        baseRatePerEffectiveSqm: pricingSettings.baseRatePerEffectiveSqm,
-        minFactor: pricingSettings.minFactor,
-        maxFactor: pricingSettings.maxFactor,
-        elevatorReductionFactor: pricingSettings.elevatorReductionFactor,
-      },
+  try {
+    await prisma.$transaction(async (transaction) => {
+      const updatedPricingProfile = await transaction.pricingProfile.updateMany({
+        where: {
+          id: pricingProfileId,
+        },
+        data: {
+          name: pricingSettings.profileName,
+          minimumOrderValue: pricingSettings.minimumOrderValue,
+          baseRatePerEffectiveSqm: pricingSettings.baseRatePerEffectiveSqm,
+          minFactor: pricingSettings.minFactor,
+          maxFactor: pricingSettings.maxFactor,
+          elevatorReductionFactor: pricingSettings.elevatorReductionFactor,
+        },
+      });
+
+      if (updatedPricingProfile.count === 0) {
+        throw new Error("Pricing profile missing.");
+      }
+
+      for (const objectType of objectTypes) {
+        await transaction.objectBasePrice.update({
+          where: {
+            profileId_objectType: {
+              profileId: pricingProfileId,
+              objectType,
+            },
+          },
+          data: {
+            amount: pricingSettings.objectBasePrices[objectType],
+          },
+        });
+      }
+
+      for (const fillLevel of fillLevels) {
+        await transaction.fillLevelFactor.update({
+          where: {
+            profileId_fillLevel: {
+              profileId: pricingProfileId,
+              fillLevel,
+            },
+          },
+          data: {
+            factor: pricingSettings.fillLevelFactors[fillLevel],
+          },
+        });
+      }
+
+      for (const floorLevel of floorLevels) {
+        await transaction.floorSurcharge.update({
+          where: {
+            profileId_floorLevel: {
+              profileId: pricingProfileId,
+              floorLevel,
+            },
+          },
+          data: {
+            amount: pricingSettings.floorSurcharges[floorLevel],
+          },
+        });
+      }
+
+      for (const walkDistance of walkDistances) {
+        await transaction.walkDistanceSurcharge.update({
+          where: {
+            profileId_walkDistance: {
+              profileId: pricingProfileId,
+              walkDistance,
+            },
+          },
+          data: {
+            amount: pricingSettings.walkDistanceSurcharges[walkDistance],
+          },
+        });
+      }
+
+      for (const extraOption of extraOptions) {
+        await transaction.extraOptionPrice.update({
+          where: {
+            profileId_extraOption: {
+              profileId: pricingProfileId,
+              extraOption,
+            },
+          },
+          data: {
+            amount: pricingSettings.extraOptionPrices[extraOption],
+          },
+        });
+      }
+
+      for (const zoneCode of travelZoneCodes) {
+        const travelZone = pricingSettings.travelZones[zoneCode];
+
+        await transaction.travelZone.update({
+          where: {
+            profileId_zoneCode: {
+              profileId: pricingProfileId,
+              zoneCode,
+            },
+          },
+          data: {
+            label: travelZone.label,
+            postalPrefixes: travelZone.postalPrefixes,
+            amount: travelZone.amount,
+          },
+        });
+      }
     });
-
-    for (const objectType of objectTypes) {
-      await transaction.objectBasePrice.update({
-        where: {
-          profileId_objectType: {
-            profileId: pricingProfileId,
-            objectType,
-          },
-        },
-        data: {
-          amount: pricingSettings.objectBasePrices[objectType],
-        },
-      });
-    }
-
-    for (const fillLevel of fillLevels) {
-      await transaction.fillLevelFactor.update({
-        where: {
-          profileId_fillLevel: {
-            profileId: pricingProfileId,
-            fillLevel,
-          },
-        },
-        data: {
-          factor: pricingSettings.fillLevelFactors[fillLevel],
-        },
-      });
-    }
-
-    for (const floorLevel of floorLevels) {
-      await transaction.floorSurcharge.update({
-        where: {
-          profileId_floorLevel: {
-            profileId: pricingProfileId,
-            floorLevel,
-          },
-        },
-        data: {
-          amount: pricingSettings.floorSurcharges[floorLevel],
-        },
-      });
-    }
-
-    for (const walkDistance of walkDistances) {
-      await transaction.walkDistanceSurcharge.update({
-        where: {
-          profileId_walkDistance: {
-            profileId: pricingProfileId,
-            walkDistance,
-          },
-        },
-        data: {
-          amount: pricingSettings.walkDistanceSurcharges[walkDistance],
-        },
-      });
-    }
-
-    for (const extraOption of extraOptions) {
-      await transaction.extraOptionPrice.update({
-        where: {
-          profileId_extraOption: {
-            profileId: pricingProfileId,
-            extraOption,
-          },
-        },
-        data: {
-          amount: pricingSettings.extraOptionPrices[extraOption],
-        },
-      });
-    }
-
-    for (const zoneCode of travelZoneCodes) {
-      const travelZone = pricingSettings.travelZones[zoneCode];
-
-      await transaction.travelZone.update({
-        where: {
-          profileId_zoneCode: {
-            profileId: pricingProfileId,
-            zoneCode,
-          },
-        },
-        data: {
-          label: travelZone.label,
-          postalPrefixes: travelZone.postalPrefixes,
-          amount: travelZone.amount,
-        },
-      });
-    }
-  });
+  } catch {
+    redirect("/admin/preise?status=invalid");
+  }
 
   revalidatePath("/rechner");
   revalidatePath("/admin");

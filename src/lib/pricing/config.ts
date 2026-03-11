@@ -137,3 +137,17 @@ export async function getActivePricingConfig() {
 
   return mapPricingProfileToConfig(profile);
 }
+
+export async function getActivePricingConfigOrNull() {
+  const profile = await getActivePricingProfileRow();
+
+  if (!profile) {
+    return null;
+  }
+
+  try {
+    return mapPricingProfileToConfig(profile);
+  } catch {
+    return null;
+  }
+}

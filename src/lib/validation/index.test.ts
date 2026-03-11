@@ -139,4 +139,56 @@ describe("publicInquirySchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("rejects invalid desired dates and duplicated problem flags", () => {
+    const result = publicInquirySchema.safeParse({
+      objectType: "APARTMENT",
+      additionalAreas: [],
+      areaSqm: 42,
+      roomCount: 2,
+      fillLevel: "NORMAL",
+      floorLevel: "FLOOR_1",
+      hasElevator: false,
+      walkDistance: "SHORT",
+      extraOptions: [],
+      problemFlags: ["MOLD", "MOLD"],
+      postalCode: "45127",
+      desiredDate: "2026-02-30",
+      name: "Test Kunde",
+      phone: "0201 123456",
+      email: " TEST@EXAMPLE.DE ",
+      message: undefined,
+      website: undefined,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("normalizes emails to lowercase and trims whitespace", () => {
+    const result = publicInquirySchema.safeParse({
+      objectType: "APARTMENT",
+      additionalAreas: [],
+      areaSqm: 42,
+      roomCount: 2,
+      fillLevel: "NORMAL",
+      floorLevel: "FLOOR_1",
+      hasElevator: false,
+      walkDistance: "SHORT",
+      extraOptions: [],
+      problemFlags: [],
+      postalCode: "45127",
+      desiredDate: "2026-03-20",
+      name: "Test Kunde",
+      phone: "0201 123456",
+      email: " TEST@EXAMPLE.DE ",
+      message: undefined,
+      website: undefined,
+    });
+
+    expect(result.success).toBe(true);
+
+    if (result.success) {
+      expect(result.data.email).toBe("test@example.de");
+    }
+  });
 });

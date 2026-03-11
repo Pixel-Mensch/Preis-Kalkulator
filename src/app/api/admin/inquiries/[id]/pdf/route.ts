@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { requireAdminSession } from "@/lib/auth";
-import { getCompanySettings } from "@/lib/company";
+import { getCompanySettingsState } from "@/lib/company";
 import { prisma } from "@/lib/db";
-import { parseJsonValue, type InquiryCalculationSnapshot } from "@/lib/inquiries";
+import { parseJsonValueSafe, type InquiryCalculationSnapshot } from "@/lib/inquiries";
 import { generateInquiryPdf } from "@/lib/pdf";
 
 type PdfRouteProps = {
@@ -16,8 +16,8 @@ export async function GET(_request: Request, { params }: PdfRouteProps) {
   await requireAdminSession();
 
   const { id } = await params;
-  const [companySettings, inquiry] = await Promise.all([
-    getCompanySettings(),
+  const [{ companySettings, isConfigured }, inquiry] = await Promise.all([
+    getCompanySettingsState(),
     prisma.inquiry.findUnique({
       where: {
         id,
@@ -29,7 +29,25 @@ export async function GET(_request: Request, { params }: PdfRouteProps) {
     return NextResponse.json({ message: "Inquiry not found." }, { status: 404 });
   }
 
-  const snapshot = parseJsonValue<InquiryCalculationSnapshot>(inquiry.calculationSnapshot);
+  const snapshot = parseJsonValueSafe<InquiryCalculationSnapshot>(inquiry.calculationSnapshot);
+
+  if (!snapshot) {
+    return NextResponse.json(
+      { message: "Stored calculation snapshot is invalid." },
+      { status: 422 },
+    );
+  }
+
+  if (!isConfigured) {
+    return NextResponse.json(
+      {
+        message:
+          "Company settings are incomplete. PDF export is unavailable until configuration is restored.",
+      },
+      { status: 503 },
+    );
+  }
+
   const pdfBytes = await generateInquiryPdf({
     companySettings,
     inquiry,

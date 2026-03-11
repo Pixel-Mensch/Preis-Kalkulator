@@ -1,7 +1,8 @@
 import Link from "next/link";
 
+import { ConfigurationState } from "@/components/configuration-state";
 import { SiteShell } from "@/components/site-shell";
-import { getCompanySettings } from "@/lib/company";
+import { getCompanySettingsState } from "@/lib/company";
 
 const processSteps = [
   {
@@ -122,7 +123,7 @@ function ArrowRightIcon({ className }: { className?: string }) {
 }
 
 export default async function HomePage() {
-  const companySettings = await getCompanySettings();
+  const { companySettings, isConfigured } = await getCompanySettingsState();
 
   return (
     <SiteShell
@@ -135,6 +136,17 @@ export default async function HomePage() {
       supportHours={companySettings.supportHours}
     >
       <main>
+        {!isConfigured ? (
+          <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8 lg:py-16">
+            <ConfigurationState
+              title="Die öffentliche Demo wird gerade eingerichtet"
+              description="Die Landingpage ist erreichbar, aber Firmendaten oder Preisprofil sind noch nicht vollständig hinterlegt. Sobald die Grundkonfiguration steht, kann der Rechner wieder belastbar genutzt werden."
+              actionHint="Für lokale Demos `npm run db:seed` oder `npm run db:reset-demo` ausführen. Für Pilotkunden bitte zuerst Firmen- und Preisdaten vervollständigen."
+            />
+          </div>
+        ) : null}
+        {isConfigured ? (
+          <>
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="section-anchor">
           <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1.08fr_0.92fr] lg:py-18">
@@ -413,6 +425,8 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+          </>
+        ) : null}
       </main>
     </SiteShell>
   );

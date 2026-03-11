@@ -1,13 +1,15 @@
 import { CalculatorWizard } from "@/components/calculator/calculator-wizard";
+import { ConfigurationState } from "@/components/configuration-state";
 import { SiteShell } from "@/components/site-shell";
-import { getCompanySettings } from "@/lib/company";
-import { getActivePricingConfig } from "@/lib/pricing/config";
+import { getCompanySettingsState } from "@/lib/company";
+import { getActivePricingConfigOrNull } from "@/lib/pricing/config";
 
 export default async function CalculatorPage() {
-  const [companySettings, pricingConfig] = await Promise.all([
-    getCompanySettings(),
-    getActivePricingConfig(),
+  const [{ companySettings, isConfigured }, pricingConfig] = await Promise.all([
+    getCompanySettingsState(),
+    getActivePricingConfigOrNull(),
   ]);
+  const isCalculatorAvailable = isConfigured && Boolean(pricingConfig);
 
   return (
     <SiteShell
@@ -20,14 +22,22 @@ export default async function CalculatorPage() {
       supportHours={companySettings.supportHours}
     >
       <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-10">
-        <CalculatorWizard
-          pricingConfig={pricingConfig}
-          companyName={companySettings.companyName}
-          companyPhone={companySettings.contactPhone}
-          companyEmail={companySettings.contactEmail}
-          serviceAreaNote={companySettings.serviceAreaNote}
-          estimateFootnote={companySettings.estimateFootnote}
-        />
+        {isCalculatorAvailable && pricingConfig ? (
+          <CalculatorWizard
+            pricingConfig={pricingConfig}
+            companyName={companySettings.companyName}
+            companyPhone={companySettings.contactPhone}
+            companyEmail={companySettings.contactEmail}
+            serviceAreaNote={companySettings.serviceAreaNote}
+            estimateFootnote={companySettings.estimateFootnote}
+          />
+        ) : (
+          <ConfigurationState
+            title="Der Rechner ist gerade noch nicht einsatzbereit"
+            description="Für eine belastbare Kostenschätzung brauchen wir vollständige Firmendaten und ein aktives Preisprofil. Solange diese Konfiguration fehlt, wird keine Anfrage entgegengenommen."
+            actionHint="Im Adminbereich Firmendaten und Preise vervollständigen oder lokal `npm run db:seed` beziehungsweise `npm run db:reset-demo` ausführen."
+          />
+        )}
       </main>
     </SiteShell>
   );

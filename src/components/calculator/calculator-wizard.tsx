@@ -206,6 +206,12 @@ export function CalculatorWizard({
         inquiry?: { publicId: string };
       };
 
+      if (response.status === 409 && data.inquiry?.publicId) {
+        router.push(`/anfrage/gesendet/${data.inquiry.publicId}`);
+        router.refresh();
+        return;
+      }
+
       if (!response.ok || !data.inquiry) {
         setErrorMessage(
           data.message ??

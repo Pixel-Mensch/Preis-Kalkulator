@@ -1,5 +1,6 @@
 import { updatePricingSettingsAction } from "@/app/admin/(protected)/actions";
 import { AdminNotice } from "@/components/admin/admin-notice";
+import { ConfigurationState } from "@/components/configuration-state";
 import { prisma } from "@/lib/db";
 import {
   extraOptionLabels,
@@ -40,7 +41,13 @@ export default async function PricingSettingsPage({
   });
 
   if (!pricingProfile) {
-    throw new Error("No active pricing profile found.");
+    return (
+      <ConfigurationState
+        title="Kein aktives Preisprofil vorhanden"
+        description="Der Adminbereich ist erreichbar, aber für neue Kalkulationen fehlt ein aktives Preisprofil. Solange diese Konfiguration fehlt, sollten keine neuen Demo- oder Pilotanfragen angenommen werden."
+        actionHint="Die Demo-Daten erneut einspielen oder ein aktives Preisprofil in der Datenbank anlegen. Lokal hilft `npm run db:seed` oder `npm run db:reset-demo`."
+      />
+    );
   }
 
   return (

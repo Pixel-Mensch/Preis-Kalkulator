@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ConfigurationState } from "@/components/configuration-state";
 import { SiteShell } from "@/components/site-shell";
-import { getCompanySettings } from "@/lib/company";
+import { getCompanySettingsState } from "@/lib/company";
 import { prisma } from "@/lib/db";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 
@@ -14,8 +15,8 @@ type SuccessPageProps = {
 
 export default async function InquirySuccessPage({ params }: SuccessPageProps) {
   const { publicId } = await params;
-  const [companySettings, inquiry] = await Promise.all([
-    getCompanySettings(),
+  const [{ companySettings, isConfigured }, inquiry] = await Promise.all([
+    getCompanySettingsState(),
     prisma.inquiry.findUnique({
       where: {
         publicId,
@@ -52,6 +53,16 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
       supportHours={companySettings.supportHours}
     >
       <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8 lg:py-16">
+        {!isConfigured ? (
+          <div className="mb-6">
+            <ConfigurationState
+              title="Firmendaten sind noch nicht vollständig eingerichtet"
+              description="Die Anfrage wurde gespeichert. Einzelne Kontakt- oder Branding-Angaben werden aktuell aus einer Fallback-Konfiguration geliefert, bis die Firmendaten vollständig hinterlegt sind."
+              actionLabel="Hinweis für Demo und Pilotbetrieb"
+              actionHint="Im Adminbereich unter „Firma“ die realen Firmendaten hinterlegen und die Startseite anschließend erneut prüfen."
+            />
+          </div>
+        ) : null}
         <div className="panel rounded-[2rem] p-8 sm:p-10">
           {/* Kopfzeile */}
           <div className="flex items-start gap-4">

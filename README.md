@@ -121,6 +121,8 @@ npm run test
 npm run build
 ```
 
+See `QA_REPORT.md` for the latest hardening pass, checked flows, fixed failure paths, and remaining known risks.
+
 ## Production and deployment notes
 
 ### Current recommendation
@@ -170,6 +172,7 @@ docker run \
 - No advanced admin filtering, notes, or assignment workflow yet
 - Initial schema bootstrapping still relies on checked-in SQL
 - SQLite is best treated as local/demo or single-install storage
+- Rate limiting and duplicate-submit protection are currently in-memory only
 
 ## Likely next improvements
 

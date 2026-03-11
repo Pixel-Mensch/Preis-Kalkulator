@@ -9,6 +9,7 @@ import {
   type WalkDistance,
 } from "@prisma/client";
 
+import { parseDateOnlyToUtcDate } from "../src/lib/date";
 import { serializeInquirySnapshot } from "../src/lib/inquiries";
 import { calculateEstimate } from "../src/lib/pricing/calculateEstimate";
 import {
@@ -370,7 +371,7 @@ async function seedDemoInquiries() {
         customerPhone: demoInquiry.input.phone,
         postalCode: demoInquiry.input.postalCode,
         desiredDate: demoInquiry.input.desiredDate
-          ? new Date(demoInquiry.input.desiredDate)
+          ? parseDateOnlyToUtcDate(demoInquiry.input.desiredDate)
           : null,
         message: demoInquiry.input.message,
         objectType: demoInquiry.input.objectType,
