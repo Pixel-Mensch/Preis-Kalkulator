@@ -1,4 +1,4 @@
-# Entrümpler Angebotsrechner V1
+# Entrümpler Angebotsrechner
 
 Digitales Anfrage- und Kostenschätzungstool für Entrümpelungsbetriebe in Deutschland. Interessenten erhalten auf dem Smartphone oder Desktop eine unverbindliche Ersteinschätzung als Preisrahmen. Der Betrieb bekommt strukturierte Anfragen, einen geschützten Admin-Bereich, editierbare Preise und PDF-Zusammenfassungen.
 
@@ -35,7 +35,7 @@ Digitales Anfrage- und Kostenschätzungstool für Entrümpelungsbetriebe in Deut
 - manuelle Prüfung bei Sonderfällen und riskanten Kombinationen
 - gespeicherter Kalkulations-Snapshot pro Anfrage
 - Client- und Server-Validierung mit Zod
-- Single-Instance-Betrieb mit SQLite für Demo und erste Pilotkunden
+- Single-Instance-Betrieb mit SQLite für Vorführungen und erste Pilotkunden
 
 ## Wichtige Repository-Dokumente
 
@@ -170,11 +170,11 @@ npm run test
 npm run build
 ```
 
-## Wichtige Grenzen in V1
+## Wichtige Grenzen im aktuellen Stand
 
 - kein rechtlich bindender Angebotsgenerator
-- keine Uploads in V1
-- keine E-Mail-Benachrichtigungen in V1
+- keine Uploads
+- keine E-Mail-Benachrichtigungen
 - Rate Limiting und Duplicate-Submit-Schutz sind aktuell in-memory und für eine Einzelinstanz gedacht
 - keine Multi-Tenant-Architektur
 - Docker- und Bare-Metal-Betrieb sind auf eine einzelne Installation mit SQLite ausgelegt

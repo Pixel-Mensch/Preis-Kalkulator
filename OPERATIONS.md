@@ -69,7 +69,7 @@ Interpretation:
 - `degraded`: runtime is alive, but customer-facing configuration is incomplete
 - `error`: runtime validation or database access failed
 
-The current rate-limit mode is reported as `memory-single-instance`. This is expected in V1.
+The current rate-limit mode is reported as `memory-single-instance`. This is expected in the current single-instance setup.
 
 ## Backup Procedure
 
@@ -177,7 +177,7 @@ If the health route returns `degraded`:
 - missing pricing: rerun bootstrap or restore the pricing profile
 - missing admin: rerun `npm run admin:sync`
 
-## Known Operational Limits in V1
+## Known Operational Limits
 
 - no automatic scheduled backups
 - no multi-user role management

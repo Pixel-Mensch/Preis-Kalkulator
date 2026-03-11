@@ -4,17 +4,17 @@ import { prisma } from "@/lib/db";
 
 export const fallbackCompanySettings = {
   id: "fallback-company-settings",
-  companyName: "Entrümpler Angebotsrechner",
-  contactEmail: "kontakt@example.de",
-  contactPhone: "+49 000 000000",
+  companyName: "Öffentliche Anfrage",
+  contactEmail: "",
+  contactPhone: "",
   website: null,
-  street: "Musterstraße 1",
-  postalCode: "00000",
-  city: "Musterstadt",
-  serviceAreaNote: "Das Einsatzgebiet wird gerade eingerichtet.",
+  street: "",
+  postalCode: "",
+  city: "Region wird festgelegt",
+  serviceAreaNote: "Einsatzgebiet und Kontaktdaten werden aktuell vorbereitet.",
   estimateFootnote:
     "Die angezeigte Kostenschätzung ist unverbindlich und dient der ersten Orientierung.",
-  supportHours: "Bitte Firmendaten im Adminbereich vervollständigen.",
+  supportHours: null,
   createdAt: new Date(0),
   updatedAt: new Date(0),
 } as const;

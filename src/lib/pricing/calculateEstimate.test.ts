@@ -72,6 +72,7 @@ describe("calculateEstimate", () => {
     });
 
     expect(result.travelZoneCode).toBe("A");
+    expect(result.travelZoneMatched).toBe(true);
     expect(result.floorSurcharge).toBe(27);
     expect(result.subtotal).toBe(1057);
     expect(result.rangeMin).toBe(970);
@@ -118,8 +119,10 @@ describe("calculateEstimate", () => {
     const reasons = getManualReviewReasons(input, estimate);
 
     expect(estimate.travelZoneCode).toBe("D");
+    expect(estimate.travelZoneMatched).toBe(false);
     expect(reasons.map((reason) => reason.code)).toEqual(
       expect.arrayContaining([
+        "OUTSIDE_SERVICE_AREA",
         "LARGE_AREA",
         "EXTREME_ACCESS",
         "LARGE_HOUSE",

@@ -5,7 +5,7 @@ import {
   type EstimateResult,
   type PricingConfig,
 } from "@/lib/pricing/types";
-import { resolveTravelZone } from "@/lib/pricing/zoneResolver";
+import { resolveTravelZoneResolution } from "@/lib/pricing/zoneResolver";
 
 function roundDownToNearestTen(value: number) {
   return Math.floor(value / 10) * 10;
@@ -19,7 +19,11 @@ export function calculateEstimate(
   pricingConfig: PricingConfig,
   input: EstimateInput,
 ): EstimateResult {
-  const travelZone = resolveTravelZone(input.postalCode, pricingConfig.travelZones);
+  const travelZoneResolution = resolveTravelZoneResolution(
+    input.postalCode,
+    pricingConfig.travelZones,
+  );
+  const travelZone = travelZoneResolution.zone;
 
   if (!travelZone) {
     throw new Error("No travel zone configuration is available.");
@@ -66,6 +70,7 @@ export function calculateEstimate(
   return {
     travelZoneCode: travelZone.code,
     travelZoneLabel: travelZone.label,
+    travelZoneMatched: travelZoneResolution.isMatched,
     effectiveArea,
     basePrice,
     effectiveAreaCost,

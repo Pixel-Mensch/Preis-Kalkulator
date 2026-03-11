@@ -109,6 +109,7 @@ export type EstimateExtraBreakdown = {
 export type EstimateResult = {
   travelZoneCode: TravelZoneCode;
   travelZoneLabel: string;
+  travelZoneMatched: boolean;
   effectiveArea: number;
   basePrice: number;
   effectiveAreaCost: number;

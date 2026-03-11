@@ -15,23 +15,29 @@ const navigationItems = [
   {
     href: "/admin",
     label: "Dashboard",
-    description: "Überblick und Prioritäten",
+    description: "Tagesüberblick und Prioritäten",
   },
   {
     href: "/admin/anfragen",
     label: "Anfragen",
-    description: "Leads prüfen und sortieren",
+    description: "Leads sichten, filtern und nachfassen",
   },
   {
     href: "/admin/preise",
     label: "Preise",
-    description: "Kalkulation für neue Vorgänge",
+    description: "Kalkulation, Zuschläge und Zonen pflegen",
   },
   {
     href: "/admin/firma",
     label: "Firma",
-    description: "Kontakt- und Brandingdaten",
+    description: "Kontakt, Einsatzgebiet und Außendarstellung",
   },
+] as const;
+
+const dailyWorkflow = [
+  "Neue Anfragen zuerst prüfen",
+  "Manuelle Prüfungen priorisiert zurückrufen",
+  "Nach jedem Kontakt den Status nachziehen",
 ] as const;
 
 export function AdminShell({ adminName, children }: AdminShellProps) {
@@ -39,54 +45,74 @@ export function AdminShell({ adminName, children }: AdminShellProps) {
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
-      <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8">
         <aside className="panel rounded-[2rem] p-5 lg:sticky lg:top-6 lg:h-fit">
-          <div className="rounded-3xl border border-[var(--line)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(247,243,234,0.92))] px-4 py-4">
+          <div className="rounded-3xl border border-[var(--line)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(247,243,234,0.92))] px-4 py-4">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--accent-deep)]">
-              Verwaltung
+              Betriebsbereich
             </p>
             <p className="mt-2 text-lg font-semibold text-slate-950">{adminName}</p>
             <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
-              Anfragen strukturiert prüfen, Prioritäten erkennen und Preise für neue
-              Vorgänge anpassen.
+              Anfragen sauber nachhalten, Prioritäten erkennen und Preise oder Firmendaten
+              ohne Umwege pflegen.
             </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href="/"
+                className="inline-flex items-center rounded-full border border-[var(--line)] bg-white px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
+              >
+                Öffentliche Seite
+              </Link>
+              <Link
+                href="/rechner"
+                className="inline-flex items-center rounded-full border border-[var(--line)] bg-white px-3 py-2 text-xs font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
+              >
+                Rechner öffnen
+              </Link>
+            </div>
           </div>
 
           <nav className="mt-5 space-y-2">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={
-                  pathname === item.href || pathname.startsWith(`${item.href}/`)
-                    ? "page"
-                    : undefined
-                }
-                className={cn(
-                  "block rounded-2xl border px-4 py-3 transition",
-                  pathname === item.href || pathname.startsWith(`${item.href}/`)
-                    ? "border-[var(--accent)] bg-[var(--accent-soft)] text-slate-950 shadow-[0_12px_30px_rgba(199,100,45,0.12)]"
-                    : "border-transparent text-slate-950 hover:border-[var(--line)] hover:bg-[var(--surface-muted)]",
-                )}
-              >
-                <p className="text-sm font-semibold">{item.label}</p>
-                <p className="mt-1 text-xs leading-5 text-[var(--foreground-soft)]">
-                  {item.description}
-                </p>
-              </Link>
-            ))}
+            {navigationItems.map((item) => {
+              const isActive =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "block rounded-2xl border px-4 py-3 transition",
+                    isActive
+                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-slate-950 shadow-[0_12px_30px_rgba(199,100,45,0.12)]"
+                      : "border-transparent text-slate-950 hover:border-[var(--line)] hover:bg-[var(--surface-muted)]",
+                  )}
+                >
+                  <p className="text-sm font-semibold">{item.label}</p>
+                  <p className="mt-1 text-xs leading-5 text-[var(--foreground-soft)]">
+                    {item.description}
+                  </p>
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="mt-6 rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
-            <p className="font-semibold text-slate-950">Für Live-Demos</p>
+            <p className="font-semibold text-slate-950">Kurz für den Tagesablauf</p>
             <ol className="mt-2 space-y-2">
-              <li>1. Erst Dashboard und Überblick zeigen</li>
-              <li>2. Dann eine Standard-Anfrage im Detail öffnen</li>
-              <li>3. Preiseinstellungen nur kurz zum Schluss zeigen</li>
+              {dailyWorkflow.map((item, index) => (
+                <li key={item} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-[11px] font-bold text-slate-950">
+                    {index + 1}
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
             </ol>
             <p className="mt-3 text-xs leading-5">
-              Tipp: Im Gespräch zuerst einen normalen Wohnungsfall zeigen und den
-              Sonderfall mit manueller Prüfung erst im zweiten Schritt.
+              Rückrufe, Besichtigungen und Preisstände sollten direkt im Vorgang nachvollziehbar
+              bleiben.
             </p>
           </div>
 

@@ -38,6 +38,23 @@ export async function updateInquiryStatusAction(formData: FormData) {
     redirect(`/admin/anfragen/${inquiryId}?status=invalid`);
   }
 
+  const existingInquiry = await prisma.inquiry.findUnique({
+    where: {
+      id: inquiryId,
+    },
+    select: {
+      status: true,
+    },
+  });
+
+  if (!existingInquiry) {
+    redirect("/admin/anfragen?status=invalid");
+  }
+
+  if (existingInquiry.status === status) {
+    redirect(`/admin/anfragen/${inquiryId}?status=nochange`);
+  }
+
   const result = await prisma.inquiry.updateMany({
     where: {
       id: inquiryId,
@@ -54,7 +71,7 @@ export async function updateInquiryStatusAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/anfragen");
   revalidatePath(`/admin/anfragen/${inquiryId}`);
-  redirect(`/admin/anfragen/${inquiryId}?status=updated`);
+  redirect(`/admin/anfragen/${inquiryId}?status=updated&nextStatus=${status}`);
 }
 
 export async function updateCompanySettingsAction(formData: FormData) {

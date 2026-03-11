@@ -1,4 +1,9 @@
-import { PDFDocument, StandardFonts } from "pdf-lib";
+import {
+  PDFDocument,
+  StandardFonts,
+  type PDFFont,
+  type PDFPage,
+} from "pdf-lib";
 
 import { formatCurrency, formatDate } from "@/lib/format";
 import type { InquiryCalculationSnapshot } from "@/lib/inquiries";
@@ -35,19 +40,68 @@ type GenerateInquiryPdfInput = {
   snapshot: InquiryCalculationSnapshot;
 };
 
-function wrapText(text: string, maxCharacters: number) {
-  const words = text.split(" ");
+const PAGE_WIDTH = 595.28;
+const PAGE_HEIGHT = 841.89;
+const MARGIN_X = 42;
+const TOP_Y = 800;
+const CONTINUATION_TOP_Y = 784;
+const BOTTOM_Y = 52;
+const FOOTER_Y = 24;
+const CONTENT_WIDTH = PAGE_WIDTH - MARGIN_X * 2;
+
+function splitLongToken(
+  token: string,
+  font: PDFFont,
+  size: number,
+  maxWidth: number,
+) {
+  const segments: string[] = [];
+  let current = "";
+
+  for (const character of [...token]) {
+    const next = `${current}${character}`;
+
+    if (current && font.widthOfTextAtSize(next, size) > maxWidth) {
+      segments.push(current);
+      current = character;
+      continue;
+    }
+
+    current = next;
+  }
+
+  if (current) {
+    segments.push(current);
+  }
+
+  return segments.length > 0 ? segments : [token];
+}
+
+function wrapParagraph(
+  text: string,
+  font: PDFFont,
+  size: number,
+  maxWidth: number,
+) {
+  const tokens = text.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
   let currentLine = "";
 
-  for (const word of words) {
-    const nextLine = currentLine ? `${currentLine} ${word}` : word;
-    if (nextLine.length > maxCharacters) {
-      if (currentLine) {
+  for (const token of tokens) {
+    const segments =
+      font.widthOfTextAtSize(token, size) <= maxWidth
+        ? [token]
+        : splitLongToken(token, font, size, maxWidth);
+
+    for (const segment of segments) {
+      const nextLine = currentLine ? `${currentLine} ${segment}` : segment;
+
+      if (currentLine && font.widthOfTextAtSize(nextLine, size) > maxWidth) {
         lines.push(currentLine);
+        currentLine = segment;
+        continue;
       }
-      currentLine = word;
-    } else {
+
       currentLine = nextLine;
     }
   }
@@ -56,7 +110,27 @@ function wrapText(text: string, maxCharacters: number) {
     lines.push(currentLine);
   }
 
-  return lines;
+  return lines.length > 0 ? lines : [""];
+}
+
+function wrapText(text: string, font: PDFFont, size: number, maxWidth: number) {
+  const paragraphs = text.replace(/\r\n/g, "\n").split("\n");
+  const lines: string[] = [];
+
+  for (const paragraph of paragraphs) {
+    const trimmedParagraph = paragraph.trim();
+
+    if (!trimmedParagraph) {
+      if (lines.at(-1) !== "") {
+        lines.push("");
+      }
+      continue;
+    }
+
+    lines.push(...wrapParagraph(trimmedParagraph, font, size, maxWidth));
+  }
+
+  return lines.length > 0 ? lines : [""];
 }
 
 export async function generateInquiryPdf({
@@ -64,47 +138,165 @@ export async function generateInquiryPdf({
   inquiry,
   snapshot,
 }: GenerateInquiryPdfInput) {
+  const isOutsideServiceArea =
+    snapshot.estimate.travelZoneMatched === false ||
+    snapshot.manualReviewReasons.some((reason) => reason.code === "OUTSIDE_SERVICE_AREA");
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([595.28, 841.89]);
   const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const pages: PDFPage[] = [];
+  let page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+  let y = TOP_Y;
 
-  let y = 800;
+  pages.push(page);
 
-  function drawLine(text: string, options?: { bold?: boolean; size?: number; gap?: number }) {
-    page.drawText(text, {
-      x: 42,
-      y,
-      size: options?.size ?? 11,
-      font: options?.bold ? boldFont : regularFont,
+  function startNewPage() {
+    page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
+    pages.push(page);
+    y = CONTINUATION_TOP_Y;
+
+    page.drawText(`${companySettings.companyName} - Anfrage ${inquiry.publicId}`, {
+      x: MARGIN_X,
+      y: CONTINUATION_TOP_Y + 18,
+      size: 10,
+      font: boldFont,
     });
-    y -= options?.gap ?? 18;
   }
 
-  drawLine(companySettings.companyName, { bold: true, size: 20, gap: 24 });
-  drawLine(
+  function ensureSpace(requiredHeight: number) {
+    if (y - requiredHeight < BOTTOM_Y) {
+      startNewPage();
+    }
+  }
+
+  function drawWrappedText(
+    text: string,
+    options?: {
+      bold?: boolean;
+      size?: number;
+      gapBefore?: number;
+      gapAfter?: number;
+      indent?: number;
+    },
+  ) {
+    const size = options?.size ?? 11;
+    const lineHeight = Math.max(size + 4, 16);
+    const font = options?.bold ? boldFont : regularFont;
+    const indent = options?.indent ?? 0;
+    const gapBefore = options?.gapBefore ?? 0;
+    const gapAfter = options?.gapAfter ?? 2;
+    const lines = wrapText(text, font, size, CONTENT_WIDTH - indent);
+
+    ensureSpace(gapBefore + lineHeight * Math.max(lines.length, 1) + gapAfter);
+    y -= gapBefore;
+
+    for (const line of lines) {
+      ensureSpace(lineHeight);
+
+      if (line) {
+        page.drawText(line, {
+          x: MARGIN_X + indent,
+          y,
+          size,
+          font,
+        });
+      }
+
+      y -= lineHeight;
+    }
+
+    y -= gapAfter;
+  }
+
+  function drawBulletItem(text: string) {
+    const size = 11;
+    const lineHeight = 16;
+    const bulletPrefix = "- ";
+    const bulletWidth = regularFont.widthOfTextAtSize(bulletPrefix, size);
+    const lines = wrapText(text, regularFont, size, CONTENT_WIDTH - bulletWidth);
+
+    ensureSpace(lineHeight * Math.max(lines.length, 1) + 2);
+
+    page.drawText(`${bulletPrefix}${lines[0] ?? ""}`, {
+      x: MARGIN_X,
+      y,
+      size,
+      font: regularFont,
+    });
+    y -= lineHeight;
+
+    for (const line of lines.slice(1)) {
+      ensureSpace(lineHeight);
+      page.drawText(line, {
+        x: MARGIN_X + bulletWidth,
+        y,
+        size,
+        font: regularFont,
+      });
+      y -= lineHeight;
+    }
+
+    y -= 2;
+  }
+
+  function drawBulletList(items: string[], emptyText: string) {
+    if (items.length === 0) {
+      drawWrappedText(emptyText, { gapAfter: 4 });
+      return;
+    }
+
+    for (const item of items) {
+      drawBulletItem(item);
+    }
+  }
+
+  function drawSection(title: string) {
+    ensureSpace(34);
+    drawWrappedText(title, {
+      bold: true,
+      size: 13,
+      gapBefore: 6,
+      gapAfter: 8,
+    });
+  }
+
+  drawWrappedText(companySettings.companyName, {
+    bold: true,
+    size: 20,
+    gapAfter: 6,
+  });
+  drawWrappedText(
     `${companySettings.street}, ${companySettings.postalCode} ${companySettings.city}`,
-    { gap: 16 },
+    { gapAfter: 2 },
   );
-  drawLine(`${companySettings.contactPhone} | ${companySettings.contactEmail}`, { gap: 24 });
+  drawWrappedText(`${companySettings.contactPhone} | ${companySettings.contactEmail}`, {
+    gapAfter: 10,
+  });
 
-  drawLine(`Anfrage ${inquiry.publicId}`, { bold: true, size: 16, gap: 20 });
-  drawLine(
+  drawWrappedText(`Anfrage ${inquiry.publicId}`, {
+    bold: true,
+    size: 16,
+    gapAfter: 4,
+  });
+  drawWrappedText(
     inquiry.manualReviewRequired
-      ? "Unverbindliche Einschätzung - manuelle Prüfung empfohlen"
-      : "Unverbindliche Einschätzung",
-    { bold: true, gap: 22 },
+      ? "Unverbindliche Einschaetzung - manuelle Pruefung empfohlen"
+      : "Unverbindliche Einschaetzung",
+    {
+      bold: true,
+      gapAfter: 10,
+    },
   );
 
-  drawLine(`Kunde: ${inquiry.customerName}`);
-  drawLine(`Kontakt: ${inquiry.customerPhone} | ${inquiry.customerEmail}`);
-  drawLine(`PLZ: ${inquiry.postalCode}`);
-  drawLine(`Wunschdatum: ${formatDate(inquiry.desiredDate)}`, { gap: 24 });
+  drawWrappedText(`Kunde: ${inquiry.customerName}`);
+  drawWrappedText(`Kontakt: ${inquiry.customerPhone} | ${inquiry.customerEmail}`);
+  drawWrappedText(`PLZ: ${inquiry.postalCode}`);
+  drawWrappedText(`Wunschdatum: ${formatDate(inquiry.desiredDate)}`, { gapAfter: 10 });
 
-  drawLine("Objektdaten", { bold: true, gap: 18 });
-  drawLine(`Objektart: ${objectTypeLabels[snapshot.input.objectType]}`);
-  drawLine(
-    `Zusätzliche Bereiche: ${
+  drawSection("Objektdaten");
+  drawWrappedText(`Objektart: ${objectTypeLabels[snapshot.input.objectType]}`);
+  drawWrappedText(
+    `Zusaetzliche Bereiche: ${
       (snapshot.input.additionalAreas ?? []).length > 0
         ? (snapshot.input.additionalAreas ?? [])
             .map((value) => additionalAreaLabels[value])
@@ -112,60 +304,83 @@ export async function generateInquiryPdf({
         : "Keine"
     }`,
   );
-  drawLine(`Fläche: ${snapshot.input.areaSqm} m²`);
-  drawLine(`Füllgrad: ${fillLevelLabels[snapshot.input.fillLevel]}`);
-  drawLine(`Etage: ${floorLevelLabels[snapshot.input.floorLevel]}`);
-  drawLine(`Aufzug: ${snapshot.input.hasElevator ? "Ja" : "Nein"}`);
-  drawLine(`Laufweg: ${walkDistanceLabels[snapshot.input.walkDistance]}`);
-  drawLine(`Zone: ${snapshot.estimate.travelZoneLabel}`, { gap: 22 });
-
-  drawLine("Preisübersicht", { bold: true, gap: 18 });
-  drawLine(
-    `Kostenschätzung: ${formatCurrency(snapshot.estimate.rangeMin)} bis ${formatCurrency(snapshot.estimate.rangeMax)}`,
+  drawWrappedText(`Flaeche: ${snapshot.input.areaSqm} m2`);
+  drawWrappedText(
+    `Zimmer: ${
+      typeof snapshot.input.roomCount === "number"
+        ? String(snapshot.input.roomCount)
+        : "Nicht angegeben"
+    }`,
   );
-  drawLine(`Objektbasis: ${formatCurrency(snapshot.estimate.basePrice)}`);
-  drawLine(`Effektive Fläche: ${snapshot.estimate.effectiveArea} m²`);
-  drawLine(`Zwischensumme: ${formatCurrency(snapshot.estimate.subtotal)}`, { gap: 22 });
+  drawWrappedText(`Fuellgrad: ${fillLevelLabels[snapshot.input.fillLevel]}`);
+  drawWrappedText(`Etage: ${floorLevelLabels[snapshot.input.floorLevel]}`);
+  drawWrappedText(`Aufzug: ${snapshot.input.hasElevator ? "Ja" : "Nein"}`);
+  drawWrappedText(`Laufweg: ${walkDistanceLabels[snapshot.input.walkDistance]}`);
+  drawWrappedText(
+    `Einsatzgebiet: ${
+      !isOutsideServiceArea
+        ? snapshot.estimate.travelZoneLabel
+        : `${snapshot.estimate.travelZoneLabel} - ausserhalb definiertes Einsatzgebiet`
+    }`,
+    { gapAfter: 10 },
+  );
 
-  drawLine("Extras", { bold: true, gap: 18 });
-  if (snapshot.input.extraOptions.length === 0) {
-    drawLine("Keine Extras gewählt.");
-  } else {
-    for (const extraOption of snapshot.input.extraOptions) {
-      drawLine(`- ${extraOptionLabels[extraOption]}`);
-    }
-  }
+  drawSection("Preisuebersicht");
+  drawWrappedText(
+    `Kostenschaetzung: ${formatCurrency(snapshot.estimate.rangeMin)} bis ${formatCurrency(
+      snapshot.estimate.rangeMax,
+    )}`,
+  );
+  drawWrappedText(`Objektbasis: ${formatCurrency(snapshot.estimate.basePrice)}`);
+  drawWrappedText(`Effektive Flaeche: ${snapshot.estimate.effectiveArea} m2`);
+  drawWrappedText(`Zwischensumme: ${formatCurrency(snapshot.estimate.subtotal)}`, {
+    gapAfter: 10,
+  });
 
-  y -= 8;
-  drawLine("Sonderfälle", { bold: true, gap: 18 });
-  if (snapshot.input.problemFlags.length === 0) {
-    drawLine("Keine Sonderfälle angegeben.");
-  } else {
-    for (const problemFlag of snapshot.input.problemFlags) {
-      drawLine(`- ${problemFlagLabels[problemFlag]}`);
-    }
-  }
+  drawSection("Extras");
+  drawBulletList(
+    snapshot.input.extraOptions.map((extraOption) => extraOptionLabels[extraOption]),
+    "Keine Extras gewaehlt.",
+  );
+
+  drawSection("Sonderfaelle");
+  drawBulletList(
+    snapshot.input.problemFlags.map((problemFlag) => problemFlagLabels[problemFlag]),
+    "Keine Sonderfaelle angegeben.",
+  );
 
   if (snapshot.manualReviewReasons.length > 0) {
-    y -= 8;
-    drawLine("Gründe für manuelle Prüfung", { bold: true, gap: 18 });
-    for (const reason of snapshot.manualReviewReasons) {
-      drawLine(`- ${reason.message}`);
-    }
+    drawSection("Gruende fuer manuelle Pruefung");
+    drawBulletList(
+      snapshot.manualReviewReasons.map((reason) => reason.message),
+      "Keine Gruende gespeichert.",
+    );
   }
 
   if (inquiry.message) {
-    y -= 8;
-    drawLine("Kundenhinweis", { bold: true, gap: 18 });
-    for (const line of wrapText(inquiry.message, 82)) {
-      drawLine(line);
-    }
+    drawSection("Kundenhinweis");
+    drawWrappedText(inquiry.message, { gapAfter: 10 });
   }
 
-  y -= 12;
-  for (const line of wrapText(companySettings.estimateFootnote, 86)) {
-    drawLine(line, { gap: 16 });
-  }
+  drawSection("Hinweis");
+  drawWrappedText(companySettings.estimateFootnote, {
+    size: 10,
+    gapAfter: 0,
+  });
+
+  const totalPages = pages.length;
+
+  pages.forEach((pdfPage, index) => {
+    const pageLabel = `Seite ${index + 1} / ${totalPages}`;
+    const pageLabelWidth = regularFont.widthOfTextAtSize(pageLabel, 9);
+
+    pdfPage.drawText(pageLabel, {
+      x: PAGE_WIDTH - MARGIN_X - pageLabelWidth,
+      y: FOOTER_Y,
+      size: 9,
+      font: regularFont,
+    });
+  });
 
   return pdfDoc.save();
 }

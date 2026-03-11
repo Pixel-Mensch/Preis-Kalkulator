@@ -11,6 +11,13 @@ export function getManualReviewReasons(
 ): ManualReviewReason[] {
   const reasons: ManualReviewReason[] = [];
 
+  if (!estimate.travelZoneMatched) {
+    reasons.push({
+      code: "OUTSIDE_SERVICE_AREA",
+      message: "PLZ außerhalb des Einsatzgebiets",
+    });
+  }
+
   if (input.areaSqm > 250) {
     reasons.push({
       code: "LARGE_AREA",

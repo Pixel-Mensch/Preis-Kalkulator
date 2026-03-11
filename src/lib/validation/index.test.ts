@@ -5,7 +5,7 @@ import { parsePricingSettingsFormData, publicInquirySchema } from "@/lib/validat
 function createValidPricingFormData() {
   const formData = new FormData();
 
-  formData.set("profileName", "Standard Entrümpelung V1");
+  formData.set("profileName", "Standard Entrümpelung");
   formData.set("minimumOrderValue", "250");
   formData.set("baseRatePerEffectiveSqm", "14");
   formData.set("minFactor", "0.92");
@@ -190,5 +190,53 @@ describe("publicInquirySchema", () => {
     if (result.success) {
       expect(result.data.email).toBe("test@example.de");
     }
+  });
+
+  it("rejects implausible phone numbers", () => {
+    const result = publicInquirySchema.safeParse({
+      objectType: "APARTMENT",
+      additionalAreas: [],
+      areaSqm: 42,
+      roomCount: 2,
+      fillLevel: "NORMAL",
+      floorLevel: "FLOOR_1",
+      hasElevator: false,
+      walkDistance: "SHORT",
+      extraOptions: [],
+      problemFlags: [],
+      postalCode: "45127",
+      desiredDate: "2026-03-20",
+      name: "Test Kunde",
+      phone: "12345",
+      email: "test@example.de",
+      message: undefined,
+      website: undefined,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects absurd room counts", () => {
+    const result = publicInquirySchema.safeParse({
+      objectType: "APARTMENT",
+      additionalAreas: [],
+      areaSqm: 42,
+      roomCount: 99,
+      fillLevel: "NORMAL",
+      floorLevel: "FLOOR_1",
+      hasElevator: false,
+      walkDistance: "SHORT",
+      extraOptions: [],
+      problemFlags: [],
+      postalCode: "45127",
+      desiredDate: "2026-03-20",
+      name: "Test Kunde",
+      phone: "0201 123456",
+      email: "test@example.de",
+      message: undefined,
+      website: undefined,
+    });
+
+    expect(result.success).toBe(false);
   });
 });

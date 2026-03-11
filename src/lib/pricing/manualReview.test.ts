@@ -103,4 +103,25 @@ describe("manual review rules", () => {
     );
     expect(requiresManualReview(reasons)).toBe(true);
   });
+
+  it("marks postal codes outside configured prefixes for manual review", () => {
+    const input: EstimateInput = {
+      objectType: "APARTMENT",
+      additionalAreas: [],
+      areaSqm: 75,
+      roomCount: 3,
+      fillLevel: "NORMAL",
+      floorLevel: "FLOOR_1",
+      hasElevator: false,
+      walkDistance: "SHORT",
+      extraOptions: [],
+      problemFlags: [],
+      postalCode: "50999",
+    };
+
+    const reasons = getManualReviewReasons(input, createEstimate(input));
+
+    expect(reasons.map((reason) => reason.code)).toContain("OUTSIDE_SERVICE_AREA");
+    expect(requiresManualReview(reasons)).toBe(true);
+  });
 });

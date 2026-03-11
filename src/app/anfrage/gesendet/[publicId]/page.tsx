@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ConfigurationState } from "@/components/configuration-state";
 import { SiteShell } from "@/components/site-shell";
 import { getCompanySettingsState } from "@/lib/company";
 import { prisma } from "@/lib/db";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+import { parseJsonValueSafe } from "@/lib/inquiries";
 
 type SuccessPageProps = {
   params: Promise<{
@@ -27,6 +27,7 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
         estimateMin: true,
         estimateMax: true,
         manualReviewRequired: true,
+        manualReviewReasons: true,
         createdAt: true,
       },
     }),
@@ -36,10 +37,25 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
     notFound();
   }
 
+  const manualReviewReasons =
+    parseJsonValueSafe<Array<{ code: string; message: string }>>(
+      inquiry.manualReviewReasons,
+    ) ?? [];
+  const isOutsideServiceArea = manualReviewReasons.some(
+    (reason) => reason.code === "OUTSIDE_SERVICE_AREA",
+  );
+  const manualReviewText = isOutsideServiceArea
+    ? "Ihre PLZ liegt außerhalb unseres aktuellen Einsatzgebiets. Wir prüfen die Anfrage persönlich, bevor wir einen Einsatz zusagen."
+    : "Ihre Anfrage enthält Angaben, die wir persönlich prüfen sollten. Der Preisrahmen bleibt unverbindlich. Wir melden uns mit einer sorgfältigen Rückmeldung bei Ihnen.";
+
   const nextSteps = [
-    `Wir prüfen Ihre Angaben und melden uns bei Bedarf mit Rückfragen.`,
-    `Bei besonderen Fällen empfehlen wir meist eine kurze Abstimmung oder Besichtigung.`,
-    `Sie erreichen uns direkt unter ${companySettings.contactPhone} oder ${companySettings.contactEmail}.`,
+    isOutsideServiceArea
+      ? "Wir prüfen zuerst, ob wir den Einsatz für Ihre PLZ übernehmen können."
+      : "Wir prüfen Ihre Angaben und melden uns bei Bedarf mit Rückfragen.",
+    "Bei besonderen Fällen empfehlen wir meist eine kurze Abstimmung oder Besichtigung.",
+    isConfigured
+      ? `Sie erreichen uns direkt unter ${companySettings.contactPhone} oder ${companySettings.contactEmail}.`
+      : "Ihre Vorgangsnummer reicht aus, damit wir die Anfrage intern schnell wiederfinden.",
   ];
 
   return (
@@ -48,23 +64,24 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
       contactPhone={companySettings.contactPhone}
       contactEmail={companySettings.contactEmail}
       website={companySettings.website}
+      street={companySettings.street}
+      postalCode={companySettings.postalCode}
       city={companySettings.city}
       serviceAreaNote={companySettings.serviceAreaNote}
       supportHours={companySettings.supportHours}
+      isConfigured={isConfigured}
     >
       <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8 lg:py-16">
         {!isConfigured ? (
-          <div className="mb-6">
-            <ConfigurationState
-              title="Firmendaten sind noch nicht vollständig eingerichtet"
-              description="Die Anfrage wurde gespeichert. Einzelne Kontakt- oder Branding-Angaben werden aktuell aus einer Fallback-Konfiguration geliefert, bis die Firmendaten vollständig hinterlegt sind."
-              actionLabel="Hinweis für Demo und Pilotbetrieb"
-              actionHint="Im Adminbereich unter „Firma“ die realen Firmendaten hinterlegen und die Startseite anschließend erneut prüfen."
-            />
+          <div className="mb-6 rounded-3xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
+            <p className="font-semibold">Firmendaten werden gerade aktualisiert</p>
+            <p className="mt-2">
+              Ihre Anfrage bleibt gespeichert. Falls einzelne Kontaktangaben hier vorübergehend
+              nicht vollständig erscheinen, wird der Vorgang intern trotzdem weiterbearbeitet.
+            </p>
           </div>
         ) : null}
         <div className="panel rounded-[2rem] p-8 sm:p-10">
-          {/* Kopfzeile */}
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)]">
               <svg
@@ -83,9 +100,7 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
               </svg>
             </div>
             <div>
-              <p className="eyebrow text-[var(--accent-deep)]">
-                Anfrage eingegangen
-              </p>
+              <p className="eyebrow text-[var(--accent-deep)]">Anfrage eingegangen</p>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                 Vielen Dank, {inquiry.customerName}.
               </h1>
@@ -93,14 +108,30 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
           </div>
 
           <p className="mt-6 text-base leading-7 text-[var(--foreground-soft)]">
-            Ihre Anfrage wurde gespeichert. Die aktuelle unverbindliche
-            Einschätzung liegt bei{" "}
+            Ihre Anfrage ist sicher eingegangen. Die aktuelle unverbindliche Einschätzung liegt
+            bei{" "}
             <span className="font-semibold text-slate-950">
-              {formatCurrency(inquiry.estimateMin)} bis{" "}
-              {formatCurrency(inquiry.estimateMax)}
+              {formatCurrency(inquiry.estimateMin)} bis {formatCurrency(inquiry.estimateMax)}
             </span>
-            .
+            . Wir prüfen jetzt die Angaben und melden uns mit dem sinnvollsten nächsten Schritt.
           </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-5 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
+              <p className="font-semibold text-slate-950">So erreichen wir Sie</p>
+              <p className="mt-2">
+                Rückfragen oder Terminabstimmungen laufen in der Regel telefonisch oder per E-Mail.
+                Bitte halten Sie beides erreichbar.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-[var(--line)] bg-white px-5 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
+              <p className="font-semibold text-slate-950">Ihre Absicherung</p>
+              <p className="mt-2">
+                Die Vorgangsnummer und der Preisrahmen bleiben gespeichert, damit wir Ihre Anfrage
+                schnell wiederfinden und sauber weiterbearbeiten können.
+              </p>
+            </div>
+          </div>
 
           {inquiry.manualReviewRequired ? (
             <div className="mt-5 flex items-start gap-3 rounded-3xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
@@ -124,11 +155,7 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
                   strokeLinecap="round"
                 />
               </svg>
-              <span>
-                Ihre Anfrage enthält Angaben, die wir persönlich prüfen sollten.
-                Der Preisrahmen bleibt unverbindlich. Wir melden uns mit einer
-                sorgfältigen Rückmeldung bei Ihnen.
-              </span>
+              <span>{manualReviewText}</span>
             </div>
           ) : (
             <div className="mt-5 flex items-start gap-3 rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm leading-6 text-emerald-900">
@@ -147,13 +174,12 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
                 />
               </svg>
               <span>
-                Ihre Angaben sind vollständig genug für eine erste Einordnung.
-                Wir können jetzt gezielter auf Ihre Anfrage reagieren.
+                Ihre Angaben sind vollständig genug für eine erste Einordnung. Wir können
+                jetzt gezielter auf Ihre Anfrage reagieren.
               </span>
             </div>
           )}
 
-          {/* Info-Raster */}
           <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_0.9fr]">
             <dl className="grid gap-4 rounded-3xl bg-[var(--surface-muted)] p-5 text-sm sm:grid-cols-2">
               <div>
@@ -175,9 +201,7 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
             </dl>
 
             <div className="rounded-3xl border border-[var(--line)] bg-white p-5 text-sm">
-              <p className="font-semibold text-slate-950">
-                Wie es jetzt weitergeht
-              </p>
+              <p className="font-semibold text-slate-950">Wie es jetzt weitergeht</p>
               <ul className="mt-3 space-y-2.5 leading-6 text-[var(--foreground-soft)]">
                 {nextSteps.map((step, index) => (
                   <li key={index} className="flex items-start gap-2.5">
@@ -188,20 +212,22 @@ export default async function InquirySuccessPage({ params }: SuccessPageProps) {
                   </li>
                 ))}
               </ul>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <a
-                  href={`tel:${companySettings.contactPhone}`}
-                  className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
-                >
-                  Direkt anrufen
-                </a>
-                <a
-                  href={`mailto:${companySettings.contactEmail}`}
-                  className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
-                >
-                  E-Mail senden
-                </a>
-              </div>
+              {isConfigured ? (
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <a
+                    href={`tel:${companySettings.contactPhone}`}
+                    className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
+                  >
+                    Direkt anrufen
+                  </a>
+                  <a
+                    href={`mailto:${companySettings.contactEmail}`}
+                    className="inline-flex h-11 items-center justify-center rounded-full border border-[var(--line)] px-4 text-sm font-semibold text-slate-950 transition hover:bg-[var(--surface-muted)]"
+                  >
+                    E-Mail senden
+                  </a>
+                </div>
+              ) : null}
             </div>
           </div>
 

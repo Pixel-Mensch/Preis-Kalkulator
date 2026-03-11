@@ -18,7 +18,19 @@ import {
   clearSubmissionGuard,
   completeSubmissionGuard,
 } from "@/lib/rate-limit";
-import { publicInquirySchema, type PublicInquiryInput } from "@/lib/validation";
+import {
+  normalizeGermanPhoneForComparison,
+  publicInquirySchema,
+  type PublicInquiryInput,
+} from "@/lib/validation";
+
+function normalizeFingerprintText(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return value.trim().replace(/\s+/g, " ");
+}
 
 function createSubmissionFingerprint(input: PublicInquiryInput) {
   return JSON.stringify({
@@ -34,9 +46,10 @@ function createSubmissionFingerprint(input: PublicInquiryInput) {
     problemFlags: [...input.problemFlags].sort(),
     postalCode: input.postalCode,
     desiredDate: input.desiredDate ?? null,
-    name: input.name,
-    phone: input.phone,
+    name: normalizeFingerprintText(input.name),
+    phone: normalizeGermanPhoneForComparison(input.phone),
     email: input.email,
+    message: normalizeFingerprintText(input.message),
   });
 }
 
@@ -92,9 +105,11 @@ export async function POST(request: Request) {
   if (inquiryInput.website) {
     return NextResponse.json(
       {
-        message: "Anfrage empfangen.",
+        message:
+          "Die Anfrage konnte nicht automatisch abgeschlossen werden. Bitte laden Sie die Seite kurz neu und senden Sie erneut.",
+        honeypotBlocked: true,
       },
-      { status: 200 },
+      { status: 202 },
     );
   }
 
@@ -104,7 +119,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "Der Rechner ist gerade nicht vollständig eingerichtet. Bitte versuchen Sie es später erneut.",
+          "Der Online-Rechner ist im Moment nicht freigegeben. Bitte versuchen Sie es später erneut.",
       },
       { status: 503 },
     );

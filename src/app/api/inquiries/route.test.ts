@@ -98,6 +98,7 @@ const pricingConfig = {
 const estimate = {
   travelZoneCode: "A",
   travelZoneLabel: "Nahbereich",
+  travelZoneMatched: true,
   effectiveArea: 58,
   basePrice: 120,
   effectiveAreaCost: 812,
@@ -189,7 +190,23 @@ describe("POST /api/inquiries", () => {
     const body = await response.json();
 
     expect(response.status).toBe(503);
-    expect(body.message).toContain("nicht vollständig eingerichtet");
+    expect(body.message).toContain("nicht freigegeben");
+    expect(mocks.createInquiryMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 202 for honeypot submissions without creating an inquiry", async () => {
+    const response = await POST(
+      createJsonRequest(
+        JSON.stringify({
+          ...validPayload,
+          website: "https://spam.example",
+        }),
+      ),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(202);
+    expect(body.honeypotBlocked).toBe(true);
     expect(mocks.createInquiryMock).not.toHaveBeenCalled();
   });
 
@@ -224,5 +241,22 @@ describe("POST /api/inquiries", () => {
       expect.any(String),
       "ABC123",
     );
+  });
+
+  it("includes normalized message and phone values in the submission fingerprint", async () => {
+    await POST(
+      createJsonRequest(
+        JSON.stringify({
+          ...validPayload,
+          phone: "0173 2211044",
+          message: "  Bitte   im   Hof klingeln.  ",
+        }),
+      ),
+    );
+
+    const fingerprint = mocks.beginSubmissionGuardMock.mock.calls[0]?.[0];
+
+    expect(fingerprint).toContain('"phone":"491732211044"');
+    expect(fingerprint).toContain('"message":"Bitte im Hof klingeln."');
   });
 });

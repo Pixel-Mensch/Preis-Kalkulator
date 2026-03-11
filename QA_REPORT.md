@@ -44,7 +44,7 @@
 - Rate Limit und Submit-Guard sind in-memory und damit nur für Single-Instance-Demos oder kleine Pilotinstallationen belastbar
 - SQLite bleibt für Demo, lokale Nutzung und Single-Installationen geeignet, aber nicht für horizontale Skalierung
 - Es gibt weiterhin keine Browser- oder E2E-Automation für den vollständigen UI-Klickpfad
-- Uploads, E-Mail-Benachrichtigungen und weitergehende Admin-Filter sind weiterhin nicht Teil von V1
+- Uploads, E-Mail-Benachrichtigungen und weitergehende Admin-Filter sind weiterhin nicht Teil des aktuellen Umfangs
 - Beschädigte Snapshots werden jetzt sauber abgefangen, aber nicht automatisch repariert
 
 ## Einschätzung

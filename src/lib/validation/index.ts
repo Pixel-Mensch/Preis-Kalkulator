@@ -19,17 +19,26 @@ import {
   type WalkDistance,
 } from "@/lib/pricing/types";
 
-function optionalNumberField() {
+function optionalIntegerField(min: number, max: number, message: string) {
   return z
     .union([z.number(), z.string(), z.null(), z.undefined()])
-    .transform((value) => {
+    .transform((value, ctx) => {
       if (value === null || value === undefined || value === "") {
         return undefined;
       }
 
       const parsed =
-        typeof value === "number" ? value : Number.parseInt(String(value), 10);
-      return Number.isFinite(parsed) ? parsed : undefined;
+        typeof value === "number" ? value : Number(String(value));
+
+      if (!Number.isInteger(parsed) || parsed < min || parsed > max) {
+        ctx.addIssue({
+          code: "custom",
+          message,
+        });
+        return z.NEVER;
+      }
+
+      return parsed;
     });
 }
 
@@ -60,6 +69,38 @@ function requiredTextField(minLength: number, maxLength: number) {
 
 function emailField() {
   return z.string().trim().toLowerCase().email();
+}
+
+function normalizePhoneInput(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+export function normalizeGermanPhoneForComparison(value: string) {
+  const compact = value.replace(/[()\s./-]+/g, "");
+
+  if (compact.startsWith("+49")) {
+    return `49${compact.slice(3).replace(/^0/, "")}`;
+  }
+
+  if (compact.startsWith("0049")) {
+    return `49${compact.slice(4).replace(/^0/, "")}`;
+  }
+
+  if (compact.startsWith("0")) {
+    return `49${compact.slice(1)}`;
+  }
+
+  return compact.replace(/\D/g, "");
+}
+
+function phoneField() {
+  return z
+    .string()
+    .transform((value) => normalizePhoneInput(value))
+    .pipe(z.string().min(7).max(40))
+    .refine((value) => /^49\d{7,14}$/.test(normalizeGermanPhoneForComparison(value)), {
+      message: "Bitte eine plausible Telefonnummer für Deutschland eingeben.",
+    });
 }
 
 function parseField<Value>(
@@ -95,7 +136,7 @@ export const publicInquirySchema = z
     objectType: z.enum(objectTypes),
     additionalAreas: z.array(z.enum(additionalAreaOptions)).default([]),
     areaSqm: z.number().int().min(1).max(5000),
-    roomCount: optionalNumberField(),
+    roomCount: optionalIntegerField(1, 40, "Bitte eine plausible Zimmeranzahl angeben."),
     fillLevel: z.enum(fillLevels),
     floorLevel: z.enum(floorLevels),
     hasElevator: z.boolean(),
@@ -105,7 +146,7 @@ export const publicInquirySchema = z
     postalCode: z.string().regex(/^\d{5}$/),
     desiredDate: optionalDateField(),
     name: z.string().trim().min(2).max(120),
-    phone: z.string().trim().min(6).max(40),
+    phone: phoneField(),
     email: emailField(),
     message: optionalTextField(2000),
     website: optionalTextField(120),
@@ -153,7 +194,7 @@ export const loginSchema = z.object({
 export const companySettingsSchema = z.object({
   companyName: z.string().trim().min(2).max(120),
   contactEmail: emailField(),
-  contactPhone: z.string().trim().min(6).max(40),
+  contactPhone: phoneField(),
   website: optionalTextField(120),
   street: z.string().trim().min(2).max(120),
   postalCode: z.string().regex(/^\d{5}$/),

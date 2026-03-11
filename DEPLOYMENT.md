@@ -157,7 +157,7 @@ Use this process for:
 - password reset
 - admin email replacement
 
-There is currently no in-app password change flow. This is acceptable for V1 single-instance delivery but should be improved later.
+There is currently no in-app password change flow. This is acceptable for the current single-instance delivery but should be improved later.
 
 ## Health Check
 
@@ -199,7 +199,7 @@ npm run bootstrap:single-instance
 npm run start
 ```
 
-## V1 Production Limits
+## Current Production Limits
 
 - single tenant only
 - SQLite only for the first live installation

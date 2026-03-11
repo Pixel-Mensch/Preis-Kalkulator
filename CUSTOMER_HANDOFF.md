@@ -29,7 +29,7 @@ Die Anwendung ist für eine einzelne Installation Ihres Betriebs gedacht. Es han
 Der erste Admin-Zugang wird technisch über die Server-Konfiguration angelegt. Für den Betrieb wichtig:
 
 - Admin-Zugang ist nach dem Bootstrap unter `/admin/login` erreichbar
-- Passwortänderungen laufen in V1 über die Server-Konfiguration
+- Passwortänderungen laufen aktuell über die Server-Konfiguration
 - ein technischer Passwort-Reset ist jederzeit möglich, ohne die Datenbank zurückzusetzen
 
 ## Was im laufenden Betrieb selbst gepflegt werden kann
@@ -52,7 +52,7 @@ Die Installation nutzt aktuell eine einzelne SQLite-Datei. Für Sie bedeutet das
 
 Die technische Durchführung steht in [OPERATIONS.md](OPERATIONS.md).
 
-## Was V1 aktuell bewusst nicht enthält
+## Was aktuell bewusst nicht enthalten ist
 
 - kein rechtlich bindender Angebotsgenerator
 - keine E-Mail-Benachrichtigungen

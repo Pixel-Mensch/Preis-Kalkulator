@@ -60,6 +60,8 @@ type CalculatorWizardProps = {
   estimateFootnote: string;
 };
 
+type TouchedField = "areaSqm" | "postalCode" | "name" | "phone" | "email";
+
 const steps = [
   {
     title: "Objekt und Aufwand",
@@ -92,6 +94,8 @@ const initialState: WizardFormState = {
   message: "",
   website: "",
 };
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function addUniqueItem<Value extends string>(currentValues: Value[], nextValue: Value) {
   return currentValues.includes(nextValue) ? currentValues : [...currentValues, nextValue];
@@ -133,17 +137,55 @@ function buildPayload(formState: WizardFormState) {
   };
 }
 
+function normalizeGermanPhone(value: string) {
+  const compact = value.replace(/[()\s./-]+/g, "");
+
+  if (compact.startsWith("+49")) {
+    return `49${compact.slice(3).replace(/^0/, "")}`;
+  }
+
+  if (compact.startsWith("0049")) {
+    return `49${compact.slice(4).replace(/^0/, "")}`;
+  }
+
+  if (compact.startsWith("0")) {
+    return `49${compact.slice(1)}`;
+  }
+
+  return compact.replace(/\D/g, "");
+}
+
+function isValidGermanPhone(value: string) {
+  return /^49\d{7,14}$/.test(normalizeGermanPhone(value.trim()));
+}
+
+function isValidEmail(value: string) {
+  return emailPattern.test(value.trim());
+}
+
 function canContinue(stepIndex: number, formState: WizardFormState) {
   if (stepIndex === 0) {
     return Number.parseInt(formState.areaSqm, 10) > 0 && /^\d{5}$/.test(formState.postalCode);
   }
 
   const payload = buildPayload(formState);
-  return Boolean(payload?.name && payload.phone && payload.email);
+  return Boolean(
+    payload?.name &&
+      isValidGermanPhone(formState.phone) &&
+      isValidEmail(formState.email),
+  );
 }
 
 function getSelectClassName() {
   return "h-12 w-full rounded-2xl border border-[var(--line)] bg-white px-4 text-sm outline-none transition focus:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60";
+}
+
+function getFieldClassName(isInvalid: boolean) {
+  return cn(
+    getSelectClassName(),
+    isInvalid &&
+      "border-red-300 bg-red-50/70 text-slate-950 placeholder:text-red-400 focus:border-red-500",
+  );
 }
 
 export function CalculatorWizard({
@@ -161,12 +203,21 @@ export function CalculatorWizard({
   const [extraOptionDraft, setExtraOptionDraft] = useState<ExtraOption | "">("");
   const [problemFlagDraft, setProblemFlagDraft] = useState<ProblemFlag | "">("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<Partial<Record<TouchedField, boolean>>>({});
 
   const payload = buildPayload(formState);
   const estimate = payload ? calculateEstimate(pricingConfig, payload) : null;
   const manualReviewReasons =
     payload && estimate ? getManualReviewReasons(payload, estimate) : [];
+  const isOutsideServiceArea = Boolean(estimate && !estimate.travelZoneMatched);
+  const areaSqmValue = Number.parseInt(formState.areaSqm, 10);
+  const areaComplete = Number.isFinite(areaSqmValue) && areaSqmValue > 0;
+  const postalComplete = /^\d{5}$/.test(formState.postalCode);
+  const nameComplete = formState.name.trim().length >= 2;
+  const phoneComplete = isValidGermanPhone(formState.phone);
+  const emailComplete = isValidEmail(formState.email);
 
   const selectedAdditionalAreaLabels = (payload?.additionalAreas ?? []).map(
     (value) => additionalAreaLabels[value],
@@ -182,11 +233,38 @@ export function CalculatorWizard({
       ? "Für den nächsten Schritt brauchen wir Hauptobjekt, Fläche und eine gültige PLZ."
       : "Zum Absenden brauchen wir Name, Telefon und E-Mail.";
 
+  const readinessItems =
+    stepIndex === 0
+      ? [
+          { label: "Objekt", isReady: true },
+          { label: "Fläche", isReady: areaComplete },
+          { label: "PLZ", isReady: postalComplete },
+        ]
+      : [
+          { label: "Name", isReady: nameComplete },
+          { label: "Telefon", isReady: phoneComplete },
+          { label: "E-Mail", isReady: emailComplete },
+        ];
+
+  function touchFields(...fields: TouchedField[]) {
+    setTouchedFields((current) => {
+      const nextState = { ...current };
+
+      for (const field of fields) {
+        nextState[field] = true;
+      }
+
+      return nextState;
+    });
+  }
+
   async function handleSubmit() {
     setErrorMessage(null);
+    setInfoMessage(null);
 
-    if (!payload || !payload.name || !payload.phone || !payload.email) {
-      setErrorMessage("Bitte vervollständigen Sie Ihre Kontaktdaten.");
+    if (!payload || !nameComplete || !phoneComplete || !emailComplete) {
+      touchFields("name", "phone", "email");
+      setErrorMessage("Bitte prüfen Sie Name, Telefon und E-Mail.");
       return;
     }
 
@@ -204,11 +282,21 @@ export function CalculatorWizard({
       const data = (await response.json()) as {
         message?: string;
         inquiry?: { publicId: string };
+        honeypotBlocked?: boolean;
       };
 
       if (response.status === 409 && data.inquiry?.publicId) {
         router.push(`/anfrage/gesendet/${data.inquiry.publicId}`);
         router.refresh();
+        return;
+      }
+
+      if (data.honeypotBlocked) {
+        setInfoMessage(
+          data.message ??
+            "Bitte laden Sie die Seite kurz neu und senden Sie die Anfrage erneut.",
+        );
+        setIsSubmitting(false);
         return;
       }
 
@@ -339,19 +427,71 @@ export function CalculatorWizard({
             </p>
           </div>
 
+          <div className="mb-6 grid gap-4 lg:hidden">
+            <div className="rounded-[1.8rem] border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-4">
+              <p className="text-sm font-semibold text-slate-950">Schnell starten</p>
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-soft)]">
+                Hauptobjekt, Fläche und PLZ reichen für die erste Orientierung. Alles
+                Weitere verbessert nur die Einordnung.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {readinessItems.map((item) => (
+                  <span
+                    key={item.label}
+                    className={cn(
+                      "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold",
+                      item.isReady
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                        : "border-[var(--line)] bg-white text-[var(--foreground-soft)]",
+                    )}
+                  >
+                    {item.isReady ? "Erledigt" : "Offen"} · {item.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[1.8rem] border border-[var(--line)] bg-white px-4 py-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--accent-deep)]">
+                Aktuelle Einschätzung
+              </p>
+              {estimate ? (
+                <>
+                  <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
+                    {formatCurrency(estimate.rangeMin)} bis {formatCurrency(estimate.rangeMax)}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--foreground-soft)]">
+                    Der Preisrahmen aktualisiert sich mit Ihren Angaben und bleibt unverbindlich.
+                  </p>
+                  {manualReviewReasons.length > 0 ? (
+                    <div className="mt-3 rounded-2xl border border-amber-300 bg-amber-50 px-3 py-3 text-xs leading-5 text-amber-900">
+                      {isOutsideServiceArea
+                        ? "Diese PLZ prüfen wir vor einer Zusage persönlich."
+                        : "Besondere Angaben markieren wir für eine kurze persönliche Prüfung."}
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
+                  Sobald Fläche und PLZ vollständig sind, zeigen wir hier Ihren Preisrahmen.
+                </p>
+              )}
+            </div>
+          </div>
+
           {stepIndex === 0 ? (
             <div className="space-y-6">
               <section className="rounded-[1.8rem] border border-[var(--line)] bg-[var(--surface-muted)] p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-slate-950">1. Objekt festlegen</p>
+                    <p className="text-sm font-semibold text-slate-950">1. Start mit den Eckdaten</p>
                     <p className="mt-1 text-sm leading-6 text-[var(--foreground-soft)]">
                       Hauptobjekt auswählen und zusätzliche Bereiche ergänzen, falls Keller,
                       Dachboden oder Garage mit betroffen sind.
                     </p>
                   </div>
                   <span className="rounded-full border border-[var(--line)] bg-white px-3 py-1 text-xs font-semibold text-[var(--foreground-soft)]">
-                    Pflicht: Objektart
+                    Startpunkt: Hauptobjekt
                   </span>
                 </div>
 
@@ -465,13 +605,23 @@ export function CalculatorWizard({
                       type="number"
                       min="1"
                       required
-                      className={getSelectClassName()}
+                      className={getFieldClassName(Boolean(touchedFields.areaSqm && !areaComplete))}
                       value={formState.areaSqm}
                       onChange={(event) =>
                         setFormState((current) => ({ ...current, areaSqm: event.target.value }))
                       }
+                      onBlur={() => touchFields("areaSqm")}
                       placeholder="z. B. 85"
                     />
+                    {touchedFields.areaSqm && !areaComplete ? (
+                      <span className="mt-2 block text-xs leading-5 text-red-700">
+                        Bitte eine Fläche größer als 0 m² angeben.
+                      </span>
+                    ) : (
+                      <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                        Eine grobe Schätzung reicht. Sie müssen nicht auf den Quadratmeter genau sein.
+                      </span>
+                    )}
                   </label>
 
                   <label className="block">
@@ -482,6 +632,7 @@ export function CalculatorWizard({
                       inputMode="numeric"
                       type="number"
                       min="1"
+                      max="40"
                       className={getSelectClassName()}
                       value={formState.roomCount}
                       onChange={(event) =>
@@ -724,7 +875,7 @@ export function CalculatorWizard({
                       inputMode="numeric"
                       maxLength={5}
                       required
-                      className={getSelectClassName()}
+                      className={getFieldClassName(Boolean(touchedFields.postalCode && !postalComplete))}
                       value={formState.postalCode}
                       onChange={(event) =>
                         setFormState((current) => ({
@@ -732,8 +883,27 @@ export function CalculatorWizard({
                           postalCode: event.target.value.replace(/\D/g, "").slice(0, 5),
                         }))
                       }
+                      onBlur={() => touchFields("postalCode")}
                       placeholder="45127"
                     />
+                    {touchedFields.postalCode && !postalComplete ? (
+                      <span className="mt-2 block text-xs leading-5 text-red-700">
+                        Bitte eine 5-stellige PLZ eingeben.
+                      </span>
+                    ) : null}
+                    {formState.postalCode.length === 5 && estimate ? (
+                      isOutsideServiceArea ? (
+                        <span className="mt-2 block rounded-2xl border border-amber-300 bg-amber-50 px-3 py-3 text-xs leading-5 text-amber-900">
+                          Diese PLZ liegt ausserhalb des konfigurierten Einsatzgebiets. Sie
+                          koennen trotzdem anfragen, wir pruefen Anfahrt und Machbarkeit dann
+                          manuell.
+                        </span>
+                      ) : (
+                        <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                          Die PLZ liegt innerhalb des aktuellen Einsatzgebiets.
+                        </span>
+                      )
+                    ) : null}
                   </label>
 
                   <label className="block">
@@ -834,8 +1004,9 @@ export function CalculatorWizard({
                   <div className="mt-5 rounded-3xl border border-amber-300 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
                     <p className="font-semibold">Persönliche Prüfung vorgesehen</p>
                     <p className="mt-2">
-                      Einige Angaben sprechen für eine kurze Rücksprache oder eine
-                      Besichtigung. Sie sehen trotzdem weiterhin einen Preisrahmen.
+                      {isOutsideServiceArea
+                        ? "Die angegebene PLZ liegt ausserhalb des aktuellen Einsatzgebiets. Wir nehmen die Anfrage gern entgegen, pruefen Anfahrt und Einsatzmoeglichkeit aber persoenlich."
+                        : "Einige Angaben sprechen fuer eine kurze Ruecksprache oder eine Besichtigung. Sie sehen trotzdem weiterhin einen Preisrahmen."}
                     </p>
                   </div>
                 ) : (
@@ -859,13 +1030,23 @@ export function CalculatorWizard({
                     <input
                       required
                       autoComplete="name"
-                      className={getSelectClassName()}
+                      className={getFieldClassName(Boolean(touchedFields.name && !nameComplete))}
                       placeholder="Vor- und Nachname"
                       value={formState.name}
                       onChange={(event) =>
                         setFormState((current) => ({ ...current, name: event.target.value }))
                       }
+                      onBlur={() => touchFields("name")}
                     />
+                    {touchedFields.name && !nameComplete ? (
+                      <span className="mt-2 block text-xs leading-5 text-red-700">
+                        Bitte Vor- und Nachname angeben.
+                      </span>
+                    ) : (
+                      <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                        So können wir Ihre Anfrage direkt korrekt zuordnen.
+                      </span>
+                    )}
                   </label>
 
                   <label className="block">
@@ -877,13 +1058,23 @@ export function CalculatorWizard({
                       type="tel"
                       inputMode="tel"
                       autoComplete="tel"
-                      className={getSelectClassName()}
-                      placeholder="Telefon für Rückfragen"
+                      className={getFieldClassName(Boolean(touchedFields.phone && !phoneComplete))}
+                      placeholder="z. B. 0201 123456 oder +49 171 1234567"
                       value={formState.phone}
                       onChange={(event) =>
                         setFormState((current) => ({ ...current, phone: event.target.value }))
                       }
+                      onBlur={() => touchFields("phone")}
                     />
+                    {touchedFields.phone && !phoneComplete ? (
+                      <span className="mt-2 block text-xs leading-5 text-red-700">
+                        Bitte eine erreichbare deutsche Rufnummer angeben.
+                      </span>
+                    ) : (
+                      <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                        Festnetz oder Mobil ist beides in Ordnung.
+                      </span>
+                    )}
                   </label>
                 </div>
 
@@ -893,13 +1084,23 @@ export function CalculatorWizard({
                     type="email"
                     required
                     autoComplete="email"
-                    className={getSelectClassName()}
+                    className={getFieldClassName(Boolean(touchedFields.email && !emailComplete))}
                     placeholder="name@example.de"
                     value={formState.email}
                     onChange={(event) =>
                       setFormState((current) => ({ ...current, email: event.target.value }))
                     }
+                    onBlur={() => touchFields("email")}
                   />
+                  {touchedFields.email && !emailComplete ? (
+                    <span className="mt-2 block text-xs leading-5 text-red-700">
+                      Bitte eine gültige E-Mail-Adresse eingeben.
+                    </span>
+                  ) : (
+                    <span className="mt-2 block text-xs leading-5 text-[var(--foreground-soft)]">
+                      Darüber senden wir Rückfragen oder Terminabstimmungen.
+                    </span>
+                  )}
                 </label>
 
                 <label className="mt-4 block">
@@ -921,20 +1122,38 @@ export function CalculatorWizard({
               <div className="rounded-3xl border border-[var(--line)] bg-white px-5 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
                 Mit dem Absenden senden Sie eine unverbindliche Anfrage. Die
                 Kostenschätzung dient der ersten Orientierung und ersetzt bei
-                Sonderfällen keine persönliche Prüfung.
+                Sonderfällen oder PLZ ausserhalb des Einsatzgebiets keine
+                persönliche Prüfung.
               </div>
 
               <label className="hidden">
-                Website
+                Bitte leer lassen
                 <input
                   tabIndex={-1}
-                  autoComplete="off"
+                  aria-hidden="true"
+                  autoComplete="new-password"
                   value={formState.website}
                   onChange={(event) =>
                     setFormState((current) => ({ ...current, website: event.target.value }))
                   }
                 />
               </label>
+            </div>
+          ) : null}
+
+          {infoMessage ? (
+            <div
+              className="mt-6 flex items-start gap-3 rounded-3xl border border-amber-300 bg-amber-50 px-4 py-4 text-sm text-amber-900"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-100 font-semibold text-amber-700">
+                i
+              </span>
+              <div>
+                <p className="font-semibold">Bitte kurz erneut senden</p>
+                <p className="mt-1 leading-6">{infoMessage}</p>
+              </div>
             </div>
           ) : null}
 
@@ -954,7 +1173,7 @@ export function CalculatorWizard({
             </div>
           ) : null}
 
-          <div className="mt-8 flex flex-col gap-4 rounded-3xl border border-[var(--line)] bg-[var(--surface-muted)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="sticky bottom-3 z-20 mt-8 flex flex-col gap-4 rounded-[1.8rem] border border-[var(--line)] bg-white/95 px-4 py-4 shadow-[0_20px_34px_rgba(29,36,48,0.12)] backdrop-blur sm:flex-row sm:items-center sm:justify-between lg:static lg:rounded-3xl lg:bg-[var(--surface-muted)] lg:shadow-none lg:backdrop-blur-none">
             <div>
               <p className="text-sm font-semibold text-slate-950">
                 Schritt {stepIndex + 1} von {steps.length}
@@ -981,6 +1200,7 @@ export function CalculatorWizard({
                 <button
                   type="button"
                   onClick={() => {
+                    touchFields("areaSqm", "postalCode");
                     if (!stepReady) {
                       setErrorMessage(
                         "Bitte geben Sie mindestens Hauptobjekt, Gesamtfläche und eine gültige PLZ an.",
@@ -991,8 +1211,12 @@ export function CalculatorWizard({
                     setErrorMessage(null);
                     setStepIndex(1);
                   }}
-                  disabled={!stepReady}
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)] disabled:cursor-not-allowed disabled:opacity-55"
+                  className={cn(
+                    "inline-flex h-12 items-center justify-center rounded-full px-6 text-sm font-semibold text-white transition",
+                    stepReady
+                      ? "bg-[var(--accent)] hover:bg-[var(--accent-deep)]"
+                      : "bg-slate-900 hover:bg-slate-800",
+                  )}
                 >
                   Weiter zur Anfrage
                 </button>
@@ -1000,7 +1224,7 @@ export function CalculatorWizard({
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={isSubmitting || !stepReady}
+                  disabled={isSubmitting}
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:bg-[var(--accent-deep)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isSubmitting ? (
@@ -1018,13 +1242,13 @@ export function CalculatorWizard({
         </div>
       </div>
 
-      <aside className="space-y-5 lg:sticky lg:top-24">
+      <aside className="hidden space-y-5 lg:sticky lg:top-24 lg:block">
         <div className="panel overflow-hidden rounded-[2rem]">
           <div className="border-b border-[var(--line)] bg-[var(--surface-muted)] px-6 py-5">
             <p className="eyebrow text-[var(--accent-deep)]">Live-Einschätzung</p>
             <p className="mt-3 text-sm leading-6 text-[var(--foreground-soft)]">
-              Dieselbe Kalkulation wird für Vorschau, Speicherung, Admin-Ansicht und PDF
-              verwendet.
+              Der Preisrahmen aktualisiert sich laufend mit Ihren Angaben und dient als
+              verlässliche erste Orientierung.
             </p>
           </div>
           {estimate ? (
@@ -1071,8 +1295,8 @@ export function CalculatorWizard({
               </dl>
 
               <div className="mt-5 rounded-3xl border border-[var(--line)] bg-white px-4 py-4 text-sm leading-6 text-[var(--foreground-soft)]">
-                Zusatzbereiche werden über die angegebene Gesamtfläche und die
-                strukturierte Anfrage mitberücksichtigt.
+                Zusatzbereiche fließen über Ihre Gesamtfläche und die Detailangaben in die
+                Einschätzung ein.
               </div>
               {manualReviewReasons.length > 0 ? (
                 <div className="mt-5 rounded-3xl border border-amber-300 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-900">
@@ -1083,13 +1307,14 @@ export function CalculatorWizard({
                     ))}
                   </ul>
                   <p className="mt-3">
-                    Sie sehen weiterhin einen Preisrahmen. Für die finale
-                    Einschätzung melden wir uns nach kurzer Prüfung persönlich.
+                    {isOutsideServiceArea
+                      ? "Die angegebene PLZ liegt ausserhalb des Einsatzgebiets. Wir melden uns nach manueller Pruefung, ob wir den Einsatz uebernehmen koennen."
+                      : "Sie sehen weiterhin einen Preisrahmen. Fuer die finale Einschaetzung melden wir uns nach kurzer Pruefung persoenlich."}
                   </p>
                 </div>
               ) : (
                 <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm leading-6 text-emerald-900">
-                  Aktuell spricht nichts gegen eine schnelle erste Einordnung Ihrer Anfrage.
+                  Ihre Angaben wirken aktuell klar genug für eine schnelle erste Rückmeldung.
                 </div>
               )}
             </div>
@@ -1110,6 +1335,12 @@ export function CalculatorWizard({
         <div className="panel rounded-[2rem] p-6 text-sm leading-6 text-[var(--foreground-soft)]">
           <p className="font-semibold text-slate-950">Einsatzgebiet und Kontakt</p>
           <p className="mt-3">{serviceAreaNote}</p>
+          {isOutsideServiceArea ? (
+            <div className="mt-4 rounded-3xl border border-amber-300 bg-amber-50 px-4 py-4 text-amber-900">
+              Ihre PLZ liegt ausserhalb des aktuellen Kerngebiets. Die Anfrage bleibt moeglich,
+              wird aber nur nach manueller Pruefung uebernommen.
+            </div>
+          ) : null}
           <p className="mt-3 font-medium text-slate-950">{companyPhone}</p>
           <p>{companyEmail}</p>
         </div>
