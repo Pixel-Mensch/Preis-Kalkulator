@@ -5,20 +5,12 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { getRuntimeEnvironment } from "@/lib/env";
+
 const SESSION_COOKIE_NAME = "entruempler_admin_session";
 
 function getSessionSecret() {
-  const secret = process.env.SESSION_SECRET;
-
-  if (secret) {
-    return secret;
-  }
-
-  if (process.env.NODE_ENV !== "production") {
-    return "development-only-session-secret-change-me";
-  }
-
-  throw new Error("SESSION_SECRET is required in production.");
+  return getRuntimeEnvironment().SESSION_SECRET;
 }
 
 function getSessionKey() {
@@ -36,14 +28,14 @@ async function shouldUseSecureCookies() {
   }
 
   if (!host) {
-    return process.env.NODE_ENV === "production";
+    return getRuntimeEnvironment().NODE_ENV === "production";
   }
 
   const normalizedHost = host.toLowerCase();
   const isLocalHost =
     normalizedHost.includes("localhost") || normalizedHost.startsWith("127.0.0.1");
 
-  return process.env.NODE_ENV === "production" && !isLocalHost;
+  return getRuntimeEnvironment().NODE_ENV === "production" && !isLocalHost;
 }
 
 export async function hashPassword(password: string) {

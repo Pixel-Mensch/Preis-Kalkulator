@@ -1,0 +1,18 @@
+services:
+  app:
+    build:
+      context: .
+    image: entruempler-angebotsrechner-v1:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: file:/app/data/dev.db
+      RUN_DB_MIGRATE_ON_START: "true"
+    volumes:
+      - ./data:/app/data

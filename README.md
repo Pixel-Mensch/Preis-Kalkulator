@@ -1,29 +1,29 @@
 # Entrümpler Angebotsrechner V1
 
-Digitales Anfrage- und Kostenschätzungstool für Entrümpelungsbetriebe in Deutschland. Interessenten erhalten eine unverbindliche Ersteinschätzung als Preisrahmen, der Betrieb erhält strukturierte Anfragen mit allen wichtigen Eckdaten in einem geschützten Admin-Bereich.
+Digitales Anfrage- und Kostenschätzungstool für Entrümpelungsbetriebe in Deutschland. Interessenten erhalten auf dem Smartphone oder Desktop eine unverbindliche Ersteinschätzung als Preisrahmen. Der Betrieb bekommt strukturierte Anfragen, einen geschützten Admin-Bereich, editierbare Preise und PDF-Zusammenfassungen.
 
 ## Was das Produkt bringt
 
-- weniger unklare Erstanfragen über Website, Telefon oder WhatsApp
-- schnellerer Überblick über Aufwand, Zugang, Extras und Sonderfälle
-- professionellerer Erstkontakt durch eine saubere, mobile Anfrageführung
+- weniger unklare Erstkontakte über Website, Telefon oder WhatsApp
+- schnellerer Überblick über Objekt, Aufwand, Zugang und Sonderfälle
+- professionellerer Erstkontakt mit klarer, mobiler Anfrageführung
 - strukturierte Lead-Erfassung statt losem Kontaktformular
-- anpassbare Preislogik ohne Verlust der historischen Anfrage-Snapshots
+- anpassbare Preislogik ohne Verlust historischer Anfrage-Snapshots
 
 ## Funktionsumfang
 
 ### Öffentlich
 
-- Landingpage mit klarem Nutzenversprechen
-- mobiler Anfrage-Rechner mit unverbindlicher Kostenschätzung
-- strukturierte Anfrage mit Kontaktangaben und Freitext
+- Landingpage mit klarer Nutzenkommunikation
+- mobiler Anfrage-Rechner mit Preisrahmen
+- strukturiertes Anfrageformular mit Kontaktangaben
 - Bestätigungsseite mit nächsten Schritten
 
 ### Intern / Admin
 
 - Admin-Login
-- Dashboard mit Überblick über neue und kritische Fälle
-- Anfragenliste und Detailansicht
+- Dashboard mit Kennzahlen und Hinweisen auf manuelle Prüfung
+- Anfrage-Liste und Detailansicht
 - Statuspflege pro Anfrage
 - PDF-Zusammenfassung pro Vorgang
 - editierbare Preiseinstellungen
@@ -32,36 +32,38 @@ Digitales Anfrage- und Kostenschätzungstool für Entrümpelungsbetriebe in Deut
 ### Fachlich
 
 - zentrale Preislogik
-- manuelle Prüfung für Sonderfälle und risikoreiche Kombinationen
+- manuelle Prüfung bei Sonderfällen und riskanten Kombinationen
 - gespeicherter Kalkulations-Snapshot pro Anfrage
-- Validierung auf Client- und Serverseite
+- Client- und Server-Validierung mit Zod
+- Single-Instance-Betrieb mit SQLite für Demo und erste Pilotkunden
 
-## Demo- und Präsentationsunterlagen im Repository
+## Wichtige Repository-Dokumente
 
-### Schnell nutzbar für Kundentermine
+### Demo und Vertrieb
 
-- [demo/DEMO_SCRIPT.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/demo/DEMO_SCRIPT.md)
-- [demo/LIVE_DEMO_FLOW.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/demo/LIVE_DEMO_FLOW.md)
-- [demo/SCREENSHOT_CHECKLIST.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/demo/SCREENSHOT_CHECKLIST.md)
-- [demo/VALUE_PROPOSITION.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/demo/VALUE_PROPOSITION.md)
+- [demo/DEMO_SCRIPT.md](demo/DEMO_SCRIPT.md)
+- [demo/LIVE_DEMO_FLOW.md](demo/LIVE_DEMO_FLOW.md)
+- [demo/SCREENSHOT_CHECKLIST.md](demo/SCREENSHOT_CHECKLIST.md)
+- [demo/VALUE_PROPOSITION.md](demo/VALUE_PROPOSITION.md)
+- [sales/README.md](sales/README.md)
 
-### Ausführlichere Vertriebsunterlagen
+### Betrieb und Übergabe
 
-- [sales/README.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/sales/README.md)
-- [sales/03_customer-one-pager.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/sales/03_customer-one-pager.md)
-- [sales/05_service-scope-and-pricing.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/sales/05_service-scope-and-pricing.md)
-- [sales/06_sales-offer-structure.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/sales/06_sales-offer-structure.md)
+- [DEPLOYMENT.md](DEPLOYMENT.md)
+- [OPERATIONS.md](OPERATIONS.md)
+- [CUSTOMER_HANDOFF.md](CUSTOMER_HANDOFF.md)
+- [QA_REPORT.md](QA_REPORT.md)
 
 ## Demo-Flow in Kurzform
 
 1. Startseite zeigen und den Nutzen in einem Satz erklären.
-2. Im Rechner einen normalen Wohnungsfall eingeben.
+2. Im Rechner einen typischen Wohnungsfall eingeben.
 3. Preisrahmen und Formulierung „unverbindliche Kostenschätzung“ betonen.
 4. Anfrage absenden und die Bestätigungsseite zeigen.
 5. Im Admin die neue Anfrage öffnen.
-6. PDF-Download und Preisänderung als Anpassbarkeit zeigen.
+6. PDF-Download und editierbare Preise demonstrieren.
 
-Die empfohlene Reihenfolge und konkrete Formulierungen stehen in [demo/LIVE_DEMO_FLOW.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/demo/LIVE_DEMO_FLOW.md).
+Die empfohlene Präsentationsreihenfolge steht in [demo/LIVE_DEMO_FLOW.md](demo/LIVE_DEMO_FLOW.md).
 
 ## Die wichtigsten Screens für Demo und Verkauf
 
@@ -71,13 +73,13 @@ Die empfohlene Reihenfolge und konkrete Formulierungen stehen in [demo/LIVE_DEMO
 4. Admin-Dashboard mit Kennzahlen und manueller Prüfung
 5. Anfrage-Detail mit Snapshot, Kostenaufschlüsselung und PDF
 
-Die ausführliche Shot-Liste steht in [demo/SCREENSHOT_CHECKLIST.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/demo/SCREENSHOT_CHECKLIST.md).
+Die vollständige Shot-Liste steht in [demo/SCREENSHOT_CHECKLIST.md](demo/SCREENSHOT_CHECKLIST.md).
 
 ## Lokales Setup
 
 1. `.env.example` nach `.env` kopieren
 2. Abhängigkeiten installieren
-3. lokale SQLite-Datenbank aufsetzen
+3. lokale Datenbank vorbereiten
 4. Demo-Daten einspielen
 5. App starten
 
@@ -99,10 +101,11 @@ npm run db:reset-demo
 - Startseite: `http://localhost:3000`
 - Rechner: `http://localhost:3000/rechner`
 - Admin-Login: `http://localhost:3000/admin/login`
+- Health-Check: `http://localhost:3000/api/health`
 
-## Demo-Zugang
+## Lokale Demo-Zugangsdaten
 
-Der Seed legt einen Demo-Admin auf Basis der `.env`-Werte an.
+Die Demo-Daten nutzen die Werte aus `.env`:
 
 ```env
 DATABASE_URL="file:./dev.db"
@@ -111,33 +114,52 @@ ADMIN_EMAIL="demo@klarraum-ruhr.de"
 ADMIN_PASSWORD="ChangeMe123!"
 ```
 
-## Deployment im Überblick
+## Einzelinstanz-Deployment im Überblick
 
-### Aktuell sinnvoll
+### Empfohlener Weg
 
-- lokale Demos
-- Pilotbetrieb auf einer einzelnen Instanz
-- kleiner Linux-Server oder Docker-Host
+Für den ersten zahlenden Kunden ist Docker Compose auf einem kleinen Linux-Server oder Docker-Host der robusteste Weg. Die App bleibt eine einzelne Instanz mit SQLite-Datei auf dem Host.
 
-### Technische Einordnung
-
-- SQLite ist bewusst für Demo, lokale Nutzung und einfache Single-Installationen gewählt
-- PDF-Erzeugung läuft serverseitig ohne Headless-Browser
-- für breitere Produktion sollte mittelfristig auf PostgreSQL gewechselt werden
-
-### Docker-Kurzbeispiel
+Schnellstart:
 
 ```bash
-docker build -t entruempler-rechner .
-docker run \
-  -p 3000:3000 \
-  -e SESSION_SECRET="replace-with-a-long-random-string" \
-  -e ADMIN_EMAIL="demo@klarraum-ruhr.de" \
-  -e ADMIN_PASSWORD="ChangeMe123!" \
-  -e DATABASE_URL="file:/app/data/dev.db" \
-  -v entruempler-data:/app/data \
-  entruempler-rechner
+cp .env.example .env
+mkdir -p data
+docker compose build
+docker compose up -d
+docker compose exec app npm run bootstrap:single-instance
 ```
+
+Danach prüfen:
+
+```bash
+curl http://localhost:3000/api/health
+```
+
+Die Health-Route liefert:
+
+- `ok`: Instanz läuft und ist für Kundennutzung vorbereitet
+- `degraded`: App läuft, aber Admin, Firmendaten oder Preisprofil fehlen noch
+- `error`: Runtime- oder Datenbankproblem
+
+### Wichtige Umgebungsvariablen
+
+- `DATABASE_URL`: SQLite-Datei oder später externer Datenbankpfad
+- `SESSION_SECRET`: mindestens 32 zufällige Zeichen in Produktion
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`: Erstzugang und Passwort-Sync
+- `RUN_DB_MIGRATE_ON_START`: steuert den SQL-Bootstrap beim App-Start
+- optionale `COMPANY_*`-Werte: legen Firmendaten beim Bootstrap direkt an
+
+Die vollständigen Schritte stehen in [DEPLOYMENT.md](DEPLOYMENT.md).
+
+## Setup-, Recovery- und Betriebsablauf
+
+- Erstinstallation: `npm run bootstrap:single-instance` oder `docker compose exec app npm run bootstrap:single-instance`
+- Passwortrotation: `.env` anpassen und `npm run admin:sync` ausführen
+- Backup: App kurz stoppen und die SQLite-Datei aus `./data/dev.db` sichern
+- Update: neues Release ziehen, Image neu bauen, Container neu starten, Health prüfen
+
+Die detaillierten Abläufe stehen in [OPERATIONS.md](OPERATIONS.md) und [CUSTOMER_HANDOFF.md](CUSTOMER_HANDOFF.md).
 
 ## Qualität und Prüfung
 
@@ -148,19 +170,18 @@ npm run test
 npm run build
 ```
 
-Für die letzte Härtungsrunde und die geprüften Failure Paths siehe [QA_REPORT.md](c:/Users/marck/Desktop/Selfmade/Preis-Rechner/QA_REPORT.md).
-
-## Wichtige Grenzen
+## Wichtige Grenzen in V1
 
 - kein rechtlich bindender Angebotsgenerator
 - keine Uploads in V1
 - keine E-Mail-Benachrichtigungen in V1
-- keine erweiterten Admin-Filter in V1
-- Rate Limiting und Duplicate-Submit-Schutz sind aktuell in-memory
+- Rate Limiting und Duplicate-Submit-Schutz sind aktuell in-memory und für eine Einzelinstanz gedacht
+- keine Multi-Tenant-Architektur
+- Docker- und Bare-Metal-Betrieb sind auf eine einzelne Installation mit SQLite ausgelegt
 
 ## Nächste sinnvolle Schritte
 
 - Preislogik mit echten Betriebswerten kalibrieren
 - Admin-Filter für Status, PLZ und manuelle Prüfung ergänzen
 - PostgreSQL für breitere Pilot- oder Produktivnutzung vorbereiten
-- das Demo- und Sales-Paket als echte PDF- und Website-Assets exportieren
+- Passwortänderung direkt im Admin ergänzen

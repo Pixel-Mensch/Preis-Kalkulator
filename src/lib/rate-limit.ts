@@ -3,6 +3,10 @@ type RateLimitConfig = {
   windowMs: number;
 };
 
+// This implementation is intentionally scoped to a single running instance.
+// Replace the backing store when the project moves beyond one process.
+export const RATE_LIMIT_IMPLEMENTATION = "memory-single-instance";
+
 type Bucket = {
   count: number;
   resetAt: number;

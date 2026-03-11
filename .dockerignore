@@ -6,6 +6,9 @@ npm-debug.log
 coverage
 prisma/dev.db
 prisma/dev.db-journal
+data
+backups
+.env
 AGENTS.md
 PROJECT_STATE.md
 TASK_QUEUE.md

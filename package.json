@@ -5,16 +5,18 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "tsx scripts/start-single-instance.ts",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsx scripts/run-typecheck.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma db execute --file prisma/migrations/202603101040_init/migration.sql --schema prisma/schema.prisma",
+    "db:migrate": "tsx scripts/apply-migrations.ts",
     "db:push": "npm run db:migrate",
     "db:seed": "prisma db seed",
     "db:reset-demo": "tsx scripts/reset-demo.ts",
+    "bootstrap:single-instance": "tsx scripts/bootstrap-single-instance.ts",
+    "admin:sync": "tsx scripts/sync-admin-user.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
